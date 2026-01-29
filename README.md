@@ -89,6 +89,7 @@ This project is currently in active development. See [ProjectScope.md](ProjectSc
 
 - ✅ Project setup and architecture
 - ✅ Backend foundation (FastAPI skeleton, DB config, Docker, health endpoint)
+- ✅ Authentication & User Management (JWT, RBAC, user endpoints)
 - 🚧 Frontend foundation (in progress)
 - 🚧 AI chatbot integration (planned)
 - 🚧 Data analytics dashboards (planned)

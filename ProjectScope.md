@@ -82,13 +82,13 @@
 - [x] Set up Docker and Docker Compose for local development
 - [x] Create initial database schema migrations (Alembic)
 
-### Day 3: Authentication & User Management
-- Implement JWT authentication system
-- Create user registration and login endpoints
-- Set up password hashing (bcrypt)
-- Implement role-based access control (RBAC)
-- Create user management API endpoints
-- Add authentication middleware
+### Day 3: Authentication & User Management ✅
+- [x] Implement JWT authentication system
+- [x] Create user registration and login endpoints
+- [x] Set up password hashing (bcrypt)
+- [x] Implement role-based access control (RBAC)
+- [x] Create user management API endpoints
+- [x] Add authentication middleware
 
 ### Day 4: Database Models & Core Entities
 - Design and implement database models (Users, Dashboards, DataSources, Widgets)

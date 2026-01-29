@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app.core.config import settings
-from app.api.v1.endpoints import health
+from app.api.v1.endpoints import health, auth, users
 
 
 def create_application() -> FastAPI:
@@ -13,6 +13,8 @@ def create_application() -> FastAPI:
 
     # Routers
     app.include_router(health.router, prefix="/api/v1", tags=["health"])
+    app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
+    app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
 
     return app
 
@@ -27,5 +29,6 @@ def read_root():
         "environment": settings.ENVIRONMENT,
         "message": "Welcome to IntelliBI backend.",
     }
+
 
 

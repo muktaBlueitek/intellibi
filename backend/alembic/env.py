@@ -5,6 +5,7 @@ from alembic import context
 
 from app.core.config import settings
 from app.core.database import Base
+from app.models import User  # Import models so Alembic can detect them
 
 config = context.config
 
@@ -51,5 +52,6 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
+
 
 

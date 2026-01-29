@@ -6,6 +6,10 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "IntelliBI"
     ENVIRONMENT: str = "development"
 
+    # Security
+    SECRET_KEY: str = "your-secret-key-change-in-production-use-env-var"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
     # Database
     POSTGRES_SERVER: str = "db"
     POSTGRES_PORT: int = 5432
@@ -32,5 +36,6 @@ def get_settings() -> Settings:
 
 
 settings = get_settings()
+
 
 
