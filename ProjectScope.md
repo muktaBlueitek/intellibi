@@ -90,12 +90,12 @@
 - [x] Create user management API endpoints
 - [x] Add authentication middleware
 
-### Day 4: Database Models & Core Entities
-- Design and implement database models (Users, Dashboards, DataSources, Widgets)
-- Create SQLAlchemy models and relationships
-- Set up database migrations with Alembic
-- Create seed data scripts
-- Implement CRUD operations for core entities
+### Day 4: Database Models & Core Entities ✅
+- [x] Design and implement database models (Users, Dashboards, DataSources, Widgets)
+- [x] Create SQLAlchemy models and relationships
+- [x] Set up database migrations with Alembic
+- [x] Create seed data scripts
+- [x] Implement CRUD operations for core entities
 
 ### Day 5: Data Source Integration - File Upload
 - Implement file upload endpoint (CSV/Excel)

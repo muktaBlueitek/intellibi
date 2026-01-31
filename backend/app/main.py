@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app.core.config import settings
-from app.api.v1.endpoints import health, auth, users
+from app.api.v1.endpoints import health, auth, users, datasources, dashboards, widgets
 
 
 def create_application() -> FastAPI:
@@ -15,6 +15,9 @@ def create_application() -> FastAPI:
     app.include_router(health.router, prefix="/api/v1", tags=["health"])
     app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
     app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
+    app.include_router(datasources.router, prefix="/api/v1/datasources", tags=["datasources"])
+    app.include_router(dashboards.router, prefix="/api/v1/dashboards", tags=["dashboards"])
+    app.include_router(widgets.router, prefix="/api/v1/widgets", tags=["widgets"])
 
     return app
 

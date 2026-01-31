@@ -5,7 +5,7 @@ from alembic import context
 
 from app.core.config import settings
 from app.core.database import Base
-from app.models import User  # Import models so Alembic can detect them
+from app.models import User, DataSource, Dashboard, Widget  # Import models so Alembic can detect them
 
 config = context.config
 
