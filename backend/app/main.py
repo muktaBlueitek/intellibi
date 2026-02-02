@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app.core.config import settings
-from app.api.v1.endpoints import health, auth, users, datasources, dashboards, widgets
+from app.api.v1.endpoints import health, auth, users, datasources, dashboards, widgets, upload
 
 
 def create_application() -> FastAPI:
@@ -18,6 +18,7 @@ def create_application() -> FastAPI:
     app.include_router(datasources.router, prefix="/api/v1/datasources", tags=["datasources"])
     app.include_router(dashboards.router, prefix="/api/v1/dashboards", tags=["dashboards"])
     app.include_router(widgets.router, prefix="/api/v1/widgets", tags=["widgets"])
+    app.include_router(upload.router, prefix="/api/v1/upload", tags=["upload"])
 
     return app
 

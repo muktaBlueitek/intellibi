@@ -97,12 +97,12 @@
 - [x] Create seed data scripts
 - [x] Implement CRUD operations for core entities
 
-### Day 5: Data Source Integration - File Upload
-- Implement file upload endpoint (CSV/Excel)
-- Create data parsing service (Pandas)
-- Implement data validation and cleaning
-- Store uploaded data in database
-- Create API endpoints for data source management
+### Day 5: Data Source Integration - File Upload ✅
+- [x] Implement file upload endpoint (CSV/Excel)
+- [x] Create data parsing service (Pandas)
+- [x] Implement data validation and cleaning
+- [x] Store uploaded data in database
+- [x] Create API endpoints for data source management
 
 ### Day 6: Data Source Integration - Database Connectors
 - Implement database connector service

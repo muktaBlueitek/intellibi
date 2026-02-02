@@ -91,6 +91,7 @@ This project is currently in active development. See [ProjectScope.md](ProjectSc
 - ✅ Backend foundation (FastAPI skeleton, DB config, Docker, health endpoint)
 - ✅ Authentication & User Management (JWT, RBAC, user endpoints)
 - ✅ Database Models & CRUD Operations (Dashboards, DataSources, Widgets)
+- ✅ File Upload Service (CSV/Excel parsing, validation, cleaning)
 - 🚧 Frontend foundation (in progress)
 - 🚧 AI chatbot integration (planned)
 - 🚧 Data analytics dashboards (planned)
