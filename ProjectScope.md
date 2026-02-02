@@ -104,12 +104,12 @@
 - [x] Store uploaded data in database
 - [x] Create API endpoints for data source management
 
-### Day 6: Data Source Integration - Database Connectors
-- Implement database connector service
-- Create connection pooling
-- Add support for PostgreSQL and MySQL connectors
-- Implement query execution service
-- Create API endpoints for database connections
+### Day 6: Data Source Integration - Database Connectors ✅
+- [x] Implement database connector service
+- [x] Create connection pooling
+- [x] Add support for PostgreSQL and MySQL connectors
+- [x] Implement query execution service
+- [x] Create API endpoints for database connections
 
 ### Day 7: Analytics Engine - Query Processing
 - Build SQL query builder service

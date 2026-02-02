@@ -92,6 +92,7 @@ This project is currently in active development. See [ProjectScope.md](ProjectSc
 - ✅ Authentication & User Management (JWT, RBAC, user endpoints)
 - ✅ Database Models & CRUD Operations (Dashboards, DataSources, Widgets)
 - ✅ File Upload Service (CSV/Excel parsing, validation, cleaning)
+- ✅ Database Connector Service (PostgreSQL, MySQL with connection pooling)
 - 🚧 Frontend foundation (in progress)
 - 🚧 AI chatbot integration (planned)
 - 🚧 Data analytics dashboards (planned)
