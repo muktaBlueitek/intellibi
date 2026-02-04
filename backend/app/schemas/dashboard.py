@@ -29,9 +29,59 @@ class DashboardUpdate(BaseModel):
 class Dashboard(DashboardBase):
     id: int
     owner_id: int
+    version: int
     widgets: List["WidgetSchema"] = []
     created_at: datetime
     updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
+
+
+# Sharing schemas
+class DashboardShareCreate(BaseModel):
+    user_id: int
+    permission: str = "view"  # view, edit, admin
+
+
+class DashboardShareUpdate(BaseModel):
+    permission: str
+
+
+class DashboardShare(BaseModel):
+    id: int
+    dashboard_id: int
+    user_id: int
+    permission: str
+    shared_by_id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+# Versioning schemas
+class DashboardVersionCreate(BaseModel):
+    comment: Optional[str] = None
+
+
+class DashboardVersion(BaseModel):
+    id: int
+    dashboard_id: int
+    version_number: int
+    name: str
+    description: Optional[str] = None
+    layout_config: Optional[Dict[str, Any]] = None
+    widgets_snapshot: Optional[List[Dict[str, Any]]] = None
+    created_by_id: int
+    created_at: datetime
+    comment: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+# Layout schemas
+class LayoutUpdate(BaseModel):
+    layout_config: Dict[str, Any]
