@@ -755,9 +755,7 @@ Based on the question, suggest what pandas operations would answer it. Provide a
 Sample data:
 {df.head(5).to_string()}
 
-Provide a helpful response explaining what the user can do with this data."""
-
-            response = self.llm.invoke(file_query_prompt)
+Provide a helpful response explaining what the user can do with this data."""            response = self.llm.invoke(file_query_prompt)
             if hasattr(response, 'content'):
                 return response.content
             else:
