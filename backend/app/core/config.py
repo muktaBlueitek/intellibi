@@ -17,6 +17,14 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = "intellibi"
     POSTGRES_DB: str = "intellibi"
 
+    # LLM/Chatbot Configuration
+    OPENAI_API_KEY: str = ""
+    LLM_PROVIDER: str = "openai"  # openai, ollama, etc.
+    LLM_MODEL: str = "gpt-3.5-turbo"
+    LLM_BASE_URL: str = ""  # For open-source LLMs like Ollama
+    CHATBOT_MAX_CONTEXT_MESSAGES: int = 10
+    CHATBOT_TEMPERATURE: float = 0.3
+
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         return (
