@@ -5,7 +5,8 @@ from app.schemas.dashboard import Dashboard, DashboardCreate, DashboardUpdate
 from app.schemas.widget import Widget, WidgetCreate, WidgetUpdate
 from app.schemas.chatbot import (
     ChatRequest, ChatResponse, Conversation, ConversationCreate, ConversationList,
-    ChatMessage, ChatMessageCreate, QueryHistory
+    ChatMessage, ChatMessageCreate, QueryHistory, QueryHistoryFilter, QueryHistoryStats,
+    VisualizationSuggestion, StatisticalSummary, QueryInsights
 )
 
 __all__ = [
@@ -15,6 +16,7 @@ __all__ = [
     "Dashboard", "DashboardCreate", "DashboardUpdate",
     "Widget", "WidgetCreate", "WidgetUpdate",
     "ChatRequest", "ChatResponse", "Conversation", "ConversationCreate", "ConversationList",
-    "ChatMessage", "ChatMessageCreate", "QueryHistory",
+    "ChatMessage", "ChatMessageCreate", "QueryHistory", "QueryHistoryFilter", "QueryHistoryStats",
+    "VisualizationSuggestion", "StatisticalSummary", "QueryInsights",
 ]
 

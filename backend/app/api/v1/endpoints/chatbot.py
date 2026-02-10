@@ -1,7 +1,8 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import desc
+from sqlalchemy import desc, and_, or_, func
+from datetime import datetime
 
 from app.core.database import get_db
 from app.models.chatbot import Conversation, ChatMessage, QueryHistory
@@ -13,7 +14,9 @@ from app.schemas.chatbot import (
     ConversationCreate,
     ConversationList,
     ChatMessage as ChatMessageSchema,
-    QueryHistory as QueryHistorySchema
+    QueryHistory as QueryHistorySchema,
+    QueryHistoryFilter,
+    QueryHistoryStats
 )
 from app.api.v1.deps import get_current_active_user
 from app.services.chatbot import ChatbotService
@@ -145,15 +148,91 @@ def delete_conversation(
 def get_query_history(
     skip: int = 0,
     limit: int = 50,
+    datasource_id: Optional[int] = Query(None),
+    success: Optional[str] = Query(None),
+    start_date: Optional[datetime] = Query(None),
+    end_date: Optional[datetime] = Query(None),
+    search_text: Optional[str] = Query(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    """Get query history for the current user."""
-    queries = db.query(QueryHistory)\
-        .filter(QueryHistory.user_id == current_user.id)\
-        .order_by(desc(QueryHistory.created_at))\
+    """Get query history for the current user with filtering options."""
+    query = db.query(QueryHistory).filter(QueryHistory.user_id == current_user.id)
+    
+    # Apply filters
+    if datasource_id:
+        query = query.filter(QueryHistory.datasource_id == datasource_id)
+    
+    if success:
+        query = query.filter(QueryHistory.success == success)
+    
+    if start_date:
+        query = query.filter(QueryHistory.created_at >= start_date)
+    
+    if end_date:
+        query = query.filter(QueryHistory.created_at <= end_date)
+    
+    if search_text:
+        search_filter = or_(
+            QueryHistory.query_text.ilike(f"%{search_text}%"),
+            QueryHistory.sql_query.ilike(f"%{search_text}%")
+        )
+        query = query.filter(search_filter)
+    
+    queries = query.order_by(desc(QueryHistory.created_at))\
         .offset(skip)\
         .limit(limit)\
         .all()
     
     return queries
+
+
+@router.get("/query-history/stats", response_model=QueryHistoryStats)
+def get_query_history_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Get query history statistics for the current user."""
+    # Total queries
+    total_queries = db.query(QueryHistory).filter(
+        QueryHistory.user_id == current_user.id
+    ).count()
+    
+    # Successful queries
+    successful_queries = db.query(QueryHistory).filter(
+        QueryHistory.user_id == current_user.id,
+        QueryHistory.success == "true"
+    ).count()
+    
+    # Failed queries
+    failed_queries = total_queries - successful_queries
+    
+    # Average execution time
+    avg_execution_time = db.query(func.avg(QueryHistory.execution_time)).filter(
+        QueryHistory.user_id == current_user.id,
+        QueryHistory.execution_time.isnot(None)
+    ).scalar()
+    
+    # Most common queries (top 5)
+    most_common = db.query(
+        QueryHistory.query_text,
+        func.count(QueryHistory.id).label('count')
+    ).filter(
+        QueryHistory.user_id == current_user.id
+    ).group_by(
+        QueryHistory.query_text
+    ).order_by(
+        desc('count')
+    ).limit(5).all()
+    
+    most_common_queries = [
+        {"query_text": q[0], "count": q[1]} for q in most_common
+    ]
+    
+    return QueryHistoryStats(
+        total_queries=total_queries,
+        successful_queries=successful_queries,
+        failed_queries=failed_queries,
+        average_execution_time=float(avg_execution_time) if avg_execution_time else None,
+        most_common_queries=most_common_queries
+    )

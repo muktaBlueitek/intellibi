@@ -2,12 +2,15 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime
 import time
 import json
+import statistics
 from sqlalchemy.orm import Session
 from langchain_openai import ChatOpenAI
 from langchain_community.llms import Ollama
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain.chains import LLMChain
 from langchain.schema import BaseMessage, HumanMessage, AIMessage
+import pandas as pd
+import numpy as np
 
 from app.core.config import settings
 from app.models.chatbot import Conversation, ChatMessage, QueryHistory
@@ -235,41 +238,103 @@ Generate a helpful response explaining these results:"""
         self,
         sql_query: str,
         datasource: DataSource,
-        password: Optional[str] = None
+        password: Optional[str] = None,
+        max_retries: int = 2
     ) -> Dict[str, Any]:
-        """Execute SQL query via analytics engine."""
-        try:
-            start_time = time.time()
-            result = self.analytics_engine.execute_query(
-                datasource=datasource,
-                query=sql_query,
-                password=password
-            )
-            execution_time = time.time() - start_time
-            
-            return {
-                "success": True,
-                "data": result.get("data", []),
-                "columns": result.get("columns", []),
-                "row_count": len(result.get("data", [])),
-                "execution_time": execution_time
-            }
-        except Exception as e:
+        """Execute SQL query via analytics engine with retry logic."""
+        # Validate SQL query before execution
+        sql_upper = sql_query.upper().strip()
+        dangerous_keywords = ["DROP", "DELETE", "TRUNCATE", "ALTER", "CREATE", "INSERT", "UPDATE"]
+        
+        for keyword in dangerous_keywords:
+            if keyword in sql_upper:
+                return {
+                    "success": False,
+                    "error": f"Query contains dangerous keyword '{keyword}'. Only SELECT queries are allowed.",
+                    "data": [],
+                    "columns": [],
+                    "row_count": 0,
+                    "execution_time": 0
+                }
+        
+        # Ensure it's a SELECT query
+        if not sql_upper.startswith("SELECT"):
             return {
                 "success": False,
-                "error": str(e),
+                "error": "Only SELECT queries are allowed.",
                 "data": [],
                 "columns": [],
                 "row_count": 0,
                 "execution_time": 0
             }
+        
+        # Retry logic
+        last_error = None
+        for attempt in range(max_retries + 1):
+            try:
+                start_time = time.time()
+                result = self.analytics_engine.execute_query(
+                    datasource=datasource,
+                    query=sql_query,
+                    password=password
+                )
+                execution_time = time.time() - start_time
+                
+                return {
+                    "success": True,
+                    "data": result.get("data", []),
+                    "columns": result.get("columns", []),
+                    "row_count": len(result.get("data", [])),
+                    "execution_time": execution_time
+                }
+            except Exception as e:
+                last_error = str(e)
+                if attempt < max_retries:
+                    time.sleep(0.5)  # Brief delay before retry
+                    continue
+                else:
+                    # Provide helpful error message
+                    error_msg = self._format_error_message(last_error, sql_query)
+                    return {
+                        "success": False,
+                        "error": error_msg,
+                        "data": [],
+                        "columns": [],
+                        "row_count": 0,
+                        "execution_time": 0
+                    }
+        
+        return {
+            "success": False,
+            "error": str(last_error) if last_error else "Unknown error",
+            "data": [],
+            "columns": [],
+            "row_count": 0,
+            "execution_time": 0
+        }
+    
+    def _format_error_message(self, error: str, sql_query: str) -> str:
+        """Format error message with helpful suggestions."""
+        error_lower = error.lower()
+        
+        if "syntax error" in error_lower or "invalid" in error_lower:
+            return f"SQL syntax error: {error}. Please check your query syntax."
+        elif "does not exist" in error_lower or "relation" in error_lower:
+            return f"Table or column not found: {error}. Please verify the table and column names exist in the datasource."
+        elif "permission" in error_lower or "access" in error_lower:
+            return f"Permission denied: {error}. Please check datasource connection credentials."
+        elif "timeout" in error_lower:
+            return f"Query timeout: {error}. The query may be too complex or the datasource may be slow. Try simplifying your query."
+        else:
+            return f"Query execution error: {error}. Please try rephrasing your question or check the datasource configuration."
     
     def generate_response(
         self,
         query: str,
-        query_results: Dict[str, Any]
+        query_results: Dict[str, Any],
+        stats: Optional[List[Dict[str, Any]]] = None
     ) -> str:
-        """Generate natural language response from query results."""
+        """Generate natural language response from query results with enhanced interpretation."""
         if not query_results.get("success"):
             error_msg = query_results.get("error", "Unknown error")
             return f"I encountered an error while executing your query: {error_msg}. Please try rephrasing your question or check if the datasource is properly configured."
@@ -277,14 +342,22 @@ Generate a helpful response explaining these results:"""
         # Format results for prompt
         data = query_results.get("data", [])
         row_count = query_results.get("row_count", 0)
+        columns = query_results.get("columns", [])
         
         if row_count == 0:
             return "The query executed successfully but returned no results. You might want to adjust your filters or check if the data exists."
         
+        # Include statistical summary if available
+        stats_text = ""
+        if stats:
+            stats_text = "\n\nStatistical Summary:\n"
+            for stat in stats[:5]:  # Limit to 5 columns
+                stats_text += f"- {stat['column']}: mean={stat.get('mean', 'N/A'):.2f}, min={stat.get('min', 'N/A')}, max={stat.get('max', 'N/A')}\n"
+        
         # Limit data shown in prompt (first 10 rows)
         preview_data = json.dumps(data[:10], indent=2, default=str)
         
-        results_text = f"Found {row_count} rows.\n\nFirst few rows:\n{preview_data}"
+        results_text = f"Found {row_count} rows with {len(columns)} columns.\n\nColumns: {', '.join(columns)}{stats_text}\n\nFirst few rows:\n{preview_data}"
         if row_count > 10:
             results_text += f"\n... and {row_count - 10} more rows"
         
@@ -298,12 +371,129 @@ Generate a helpful response explaining these results:"""
         
         return response.strip()
     
+    def _generate_suggested_queries(self, query: str, query_results: Dict[str, Any], columns: List[str]) -> List[str]:
+        """Generate suggested follow-up queries."""
+        if not query_results.get("success") or not columns:
+            return []
+        
+        suggestions = []
+        
+        # Generate suggestions based on query and columns
+        try:
+            suggestion_prompt = f"""Based on this query and available columns, suggest 3-5 useful follow-up questions:
+
+Original query: {query}
+Available columns: {', '.join(columns)}
+
+Suggest follow-up questions that would provide additional insights. Return as a JSON array of strings."""
+
+            response = self.llm.invoke(suggestion_prompt)
+            if hasattr(response, 'content'):
+                suggestion_text = response.content
+            else:
+                suggestion_text = str(response)
+            
+            # Parse JSON array
+            if "[" in suggestion_text:
+                if "```json" in suggestion_text:
+                    suggestion_text = suggestion_text.split("```json")[1].split("```")[0].strip()
+                elif "```" in suggestion_text:
+                    suggestion_text = suggestion_text.split("```")[1].split("```")[0].strip()
+                
+                suggestions = json.loads(suggestion_text)
+                if isinstance(suggestions, list):
+                    return suggestions[:5]  # Limit to 5 suggestions
+        except Exception:
+            pass
+        
+        # Fallback suggestions
+        if len(columns) > 1:
+            suggestions = [
+                f"What is the average of {columns[0]}?",
+                f"Show me the top 10 by {columns[0]}",
+                f"Group the data by {columns[0]}"
+            ]
+        
+        return suggestions[:5]
+    
+    def _calculate_statistics(self, data: List[Dict[str, Any]], columns: List[str]) -> List[Dict[str, Any]]:
+        """Calculate statistical summary for numeric columns."""
+        if not data:
+            return []
+        
+        df = pd.DataFrame(data)
+        stats = []
+        
+        for col in columns:
+            try:
+                numeric_data = pd.to_numeric(df[col], errors='coerce').dropna()
+                if len(numeric_data) > 0:
+                    stats.append({
+                        "column": col,
+                        "mean": float(numeric_data.mean()),
+                        "median": float(numeric_data.median()),
+                        "min": float(numeric_data.min()),
+                        "max": float(numeric_data.max()),
+                        "std_dev": float(numeric_data.std()) if len(numeric_data) > 1 else 0.0,
+                        "count": int(len(numeric_data))
+                    })
+            except Exception:
+                continue
+        
+        return stats
+    
+    def _generate_insights(self, query: str, query_results: Dict[str, Any], stats: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Generate insights from query results using LLM."""
+        if not query_results.get("success") or not stats:
+            return {}
+        
+        data = query_results.get("data", [])
+        row_count = query_results.get("row_count", 0)
+        
+        insights_prompt = f"""Analyze the following query results and provide insights:
+
+Query: {query}
+Rows returned: {row_count}
+Statistical Summary: {json.dumps(stats, indent=2)}
+
+Provide insights in JSON format with:
+- summary: Brief summary of key findings
+- trends: List of trends observed (if any)
+- anomalies: List of anomalies or outliers (if any)
+- correlations: List of correlations between columns (if any)
+
+Return only valid JSON."""
+
+        try:
+            response = self.llm.invoke(insights_prompt)
+            if hasattr(response, 'content'):
+                insights_text = response.content
+            else:
+                insights_text = str(response)
+            
+            # Try to parse JSON from response
+            if "```json" in insights_text:
+                insights_text = insights_text.split("```json")[1].split("```")[0].strip()
+            elif "```" in insights_text:
+                insights_text = insights_text.split("```")[1].split("```")[0].strip()
+            
+            insights = json.loads(insights_text)
+            return insights
+        except Exception as e:
+            # Fallback to simple insights
+            return {
+                "summary": f"Query returned {row_count} rows with {len(stats)} numeric columns analyzed.",
+                "trends": [],
+                "anomalies": [],
+                "correlations": []
+            }
+    
     def suggest_visualization(
         self,
         query: str,
         query_results: Dict[str, Any]
-    ) -> Optional[str]:
-        """Suggest appropriate visualization type based on query and results."""
+    ) -> Optional[Dict[str, Any]]:
+        """Suggest appropriate visualization type using LLM and heuristics."""
         if not query_results.get("success"):
             return None
         
@@ -313,38 +503,76 @@ Generate a helpful response explaining these results:"""
         if not data or not columns:
             return None
         
-        # Simple heuristics for visualization suggestions
-        num_columns = len(columns)
-        num_rows = len(data)
-        
-        # Check for time-based columns
-        time_columns = [col for col in columns if any(keyword in col.lower() for keyword in ["date", "time", "year", "month", "day"])]
-        
-        # Check for numeric columns
-        numeric_columns = []
-        if data:
-            first_row = data[0]
-            for col in columns:
-                try:
-                    float(first_row.get(col, 0))
-                    numeric_columns.append(col)
-                except (ValueError, TypeError):
-                    pass
-        
-        # Suggest based on patterns
-        if time_columns and numeric_columns:
-            return "line_chart"  # Time series
-        elif num_columns == 2 and numeric_columns:
-            if num_rows <= 10:
-                return "pie_chart"
+        # First try LLM-based suggestion
+        try:
+            viz_prompt = f"""Based on this query and data structure, suggest the best visualization:
+
+Query: {query}
+Columns: {', '.join(columns)}
+Number of rows: {len(data)}
+Sample data: {json.dumps(data[:3], default=str)}
+
+Suggest the best chart type (line_chart, bar_chart, pie_chart, area_chart, scatter_chart, heatmap, table) and provide reasoning.
+Return JSON with: {{"chart_type": "...", "reasoning": "..."}}"""
+
+            response = self.llm.invoke(viz_prompt)
+            if hasattr(response, 'content'):
+                viz_text = response.content
             else:
-                return "bar_chart"
-        elif num_columns > 2 and numeric_columns:
-            return "bar_chart"
-        elif num_rows <= 20:
-            return "table"
-        else:
-            return "bar_chart"  # Default
+                viz_text = str(response)
+            
+            # Parse JSON from response
+            if "```json" in viz_text:
+                viz_text = viz_text.split("```json")[1].split("```")[0].strip()
+            elif "```" in viz_text:
+                viz_text = viz_text.split("```")[1].split("```")[0].strip()
+            
+            llm_suggestion = json.loads(viz_text)
+            
+            # Add configuration suggestions
+            config = {}
+            if llm_suggestion.get("chart_type") == "line_chart":
+                config = {"x_axis": columns[0] if columns else None, "y_axis": columns[1] if len(columns) > 1 else None}
+            elif llm_suggestion.get("chart_type") == "bar_chart":
+                config = {"x_axis": columns[0] if columns else None, "y_axis": columns[1] if len(columns) > 1 else None}
+            elif llm_suggestion.get("chart_type") == "pie_chart":
+                config = {"label": columns[0] if columns else None, "value": columns[1] if len(columns) > 1 else None}
+            
+            return {
+                "chart_type": llm_suggestion.get("chart_type", "bar_chart"),
+                "config": config,
+                "reasoning": llm_suggestion.get("reasoning", "LLM suggested visualization")
+            }
+        except Exception:
+            # Fallback to heuristics
+            num_columns = len(columns)
+            num_rows = len(data)
+            
+            time_columns = [col for col in columns if any(keyword in col.lower() for keyword in ["date", "time", "year", "month", "day"])]
+            
+            numeric_columns = []
+            if data:
+                first_row = data[0]
+                for col in columns:
+                    try:
+                        float(first_row.get(col, 0))
+                        numeric_columns.append(col)
+                    except (ValueError, TypeError):
+                        pass
+            
+            if time_columns and numeric_columns:
+                return {"chart_type": "line_chart", "config": {"x_axis": time_columns[0], "y_axis": numeric_columns[0]}, "reasoning": "Time series data detected"}
+            elif num_columns == 2 and numeric_columns:
+                if num_rows <= 10:
+                    return {"chart_type": "pie_chart", "config": {"label": columns[0], "value": columns[1]}, "reasoning": "Small dataset with 2 columns"}
+                else:
+                    return {"chart_type": "bar_chart", "config": {"x_axis": columns[0], "y_axis": columns[1]}, "reasoning": "Categorical data with values"}
+            elif num_columns > 2 and numeric_columns:
+                return {"chart_type": "bar_chart", "config": {"x_axis": columns[0], "y_axis": columns[1]}, "reasoning": "Multiple columns with numeric data"}
+            elif num_rows <= 20:
+                return {"chart_type": "table", "config": {}, "reasoning": "Small dataset suitable for table view"}
+            else:
+                return {"chart_type": "bar_chart", "config": {}, "reasoning": "Default visualization"}
     
     def process_message(
         self,
@@ -433,19 +661,40 @@ Generate a helpful response explaining these results:"""
                 }
                 sql_query = None
         
-        # Generate response
-        if query_result:
-            assistant_message_text = self.generate_response(message, query_result)
-        else:
-            # For non-database queries or when no datasource, provide general response
-            assistant_message_text = "I can help you query your data sources. Please specify a database datasource to execute SQL queries, or ask me about your data."
+        # Calculate statistics and generate insights
+        stats = None
+        insights = None
+        suggested_queries = None
         
-        # Suggest visualization
+        if query_result and query_result.get("success"):
+            data = query_result.get("data", [])
+            columns = query_result.get("columns", [])
+            
+            # Calculate statistics
+            if data and columns:
+                stats = self._calculate_statistics(data, columns)
+                # Generate insights
+                insights = self._generate_insights(message, query_result, stats)
+                # Generate suggested queries
+                suggested_queries = self._generate_suggested_queries(message, query_result, columns)
+        
+        # Generate response with enhanced interpretation
+        if query_result:
+            assistant_message_text = self.generate_response(message, query_result, stats)
+        else:
+            # Handle file-based datasources
+            if datasource and datasource.type == DataSourceType.FILE:
+                assistant_message_text = self._process_file_query(user, message, datasource, db)
+            else:
+                # For non-database queries or when no datasource, provide general response
+                assistant_message_text = "I can help you query your data sources. Please specify a database datasource to execute SQL queries, or ask me about your data."
+        
+        # Suggest visualization with enhanced metadata
         visualization_suggestion = None
         if query_result and query_result.get("success"):
             visualization_suggestion = self.suggest_visualization(message, query_result)
         
-        # Save assistant message
+        # Save assistant message with enhanced metadata
         assistant_message = ChatMessage(
             conversation_id=conversation.id,
             role="assistant",
@@ -453,8 +702,11 @@ Generate a helpful response explaining these results:"""
             metadata={
                 "sql_query": sql_query,
                 "query_result": query_result,
-                "visualization_suggestion": visualization_suggestion
-            } if sql_query else None
+                "visualization_suggestion": visualization_suggestion,
+                "statistical_summary": stats,
+                "insights": insights,
+                "suggested_queries": suggested_queries
+            } if sql_query or stats else None
         )
         db.add(assistant_message)
         
@@ -470,5 +722,45 @@ Generate a helpful response explaining these results:"""
             "sql_query": sql_query,
             "execution_result": query_result,
             "visualization_suggestion": visualization_suggestion,
+            "statistical_summary": stats,
+            "insights": insights,
+            "suggested_queries": suggested_queries,
             "message_id": assistant_message.id
         }
+    
+    def _process_file_query(
+        self,
+        user: User,
+        message: str,
+        datasource: DataSource,
+        db: Session
+    ) -> str:
+        """Process natural language queries for file-based datasources."""
+        try:
+            # Get data from file
+            df = self.analytics_engine.get_data(datasource, limit=1000)
+            
+            if df.empty:
+                return "The file datasource is empty or could not be loaded."
+            
+            # Use LLM to interpret the query and generate pandas operations
+            file_query_prompt = f"""The user wants to query a CSV/Excel file with the following question:
+"{message}"
+
+Available columns: {', '.join(df.columns.tolist())}
+Number of rows: {len(df)}
+
+Based on the question, suggest what pandas operations would answer it. Provide a brief explanation of what the data shows.
+
+Sample data:
+{df.head(5).to_string()}
+
+Provide a helpful response explaining what the user can do with this data."""
+
+            response = self.llm.invoke(file_query_prompt)
+            if hasattr(response, 'content'):
+                return response.content
+            else:
+                return str(response)
+        except Exception as e:
+            return f"I encountered an error processing your file query: {str(e)}. Please try rephrasing your question."
