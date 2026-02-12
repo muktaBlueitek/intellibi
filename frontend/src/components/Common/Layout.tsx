@@ -1,7 +1,8 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../../hooks/redux'
 import { logout } from '../../store/slices/authSlice'
-import { clearUser } from '../../store/slices/userSlice'
+import { clearUser, fetchCurrentUser } from '../../store/slices/userSlice'
 import './Layout.css'
 
 const Layout = () => {
@@ -9,6 +10,12 @@ const Layout = () => {
   const navigate = useNavigate()
   const { isAuthenticated } = useAppSelector((state) => state.auth)
   const { currentUser } = useAppSelector((state) => state.user)
+
+  useEffect(() => {
+    if (isAuthenticated && !currentUser) {
+      dispatch(fetchCurrentUser())
+    }
+  }, [dispatch, isAuthenticated, currentUser])
 
   const handleLogout = () => {
     dispatch(logout())
@@ -30,7 +37,9 @@ const Layout = () => {
           </nav>
           <div className="header-actions">
             {currentUser && (
-              <span className="user-name">{currentUser.username}</span>
+              <Link to="/profile" className="user-name">
+                {currentUser.username}
+              </Link>
             )}
             {isAuthenticated && (
               <button onClick={handleLogout} className="logout-btn">

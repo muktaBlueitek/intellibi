@@ -4,6 +4,7 @@ import Layout from './components/Common/Layout'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import ProfilePage from './pages/ProfilePage'
 import DashboardPage from './pages/DashboardPage'
 import DashboardsListPage from './pages/DashboardsListPage'
 import DataSourcesPage from './pages/DataSourcesPage'
@@ -25,6 +26,7 @@ function App() {
           }
         >
           <Route index element={<HomePage />} />
+          <Route path="profile" element={<ProfilePage />} />
           <Route path="dashboards" element={<DashboardsListPage />} />
           <Route path="dashboards/:id" element={<DashboardPage />} />
           <Route path="datasources" element={<DataSourcesPage />} />
