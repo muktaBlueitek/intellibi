@@ -1,12 +1,12 @@
 from typing import Optional, Dict, Any, List
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ChatMessageBase(BaseModel):
     role: str
     content: str
-    metadata: Optional[Dict[str, Any]] = None
+    message_metadata: Optional[Dict[str, Any]] = None
 
 
 class ChatMessageCreate(ChatMessageBase):
@@ -20,6 +20,7 @@ class ChatMessage(ChatMessageBase):
 
     class Config:
         from_attributes = True
+        populate_by_name = True
 
 
 class ConversationBase(BaseModel):

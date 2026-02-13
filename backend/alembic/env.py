@@ -1,11 +1,17 @@
 from logging.config import fileConfig
+import sys
+from pathlib import Path
+
+# Add the backend directory to Python path
+backend_dir = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(backend_dir))
 
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 from app.core.config import settings
 from app.core.database import Base
-from app.models import User, DataSource, Dashboard, Widget  # Import models so Alembic can detect them
+from app.models import User, DataSource, Dashboard, Widget, Conversation, ChatMessage, QueryHistory  # Import models so Alembic can detect them
 
 config = context.config
 

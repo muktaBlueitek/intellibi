@@ -19,13 +19,14 @@ export interface AuthResponse {
 
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    const formData = new FormData()
-    formData.append('username', credentials.username)
-    formData.append('password', credentials.password)
+    // OAuth2PasswordRequestForm expects form-urlencoded data
+    const params = new URLSearchParams()
+    params.append('username', credentials.username)
+    params.append('password', credentials.password)
     
-    const response = await apiClient.post('/auth/login', formData, {
+    const response = await apiClient.post('/auth/login', params.toString(), {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
     })
     return response.data

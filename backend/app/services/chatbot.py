@@ -699,7 +699,7 @@ Return JSON with: {{"chart_type": "...", "reasoning": "..."}}"""
             conversation_id=conversation.id,
             role="assistant",
             content=assistant_message_text,
-            metadata={
+            message_metadata={
                 "sql_query": sql_query,
                 "query_result": query_result,
                 "visualization_suggestion": visualization_suggestion,

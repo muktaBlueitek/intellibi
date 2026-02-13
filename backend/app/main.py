@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.api.v1.endpoints import health, auth, users, datasources, dashboards, widgets, upload, database_connections, analytics, chatbot
@@ -9,6 +10,15 @@ def create_application() -> FastAPI:
         title="IntelliBI Backend",
         version="0.1.0",
         description="Backend API for the IntelliBI Business Intelligence Platform.",
+    )
+
+    # Configure CORS
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Frontend URL
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
     # Routers

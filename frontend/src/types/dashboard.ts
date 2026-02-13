@@ -1,3 +1,5 @@
+import { Widget } from './widget'
+
 export interface Dashboard {
   id: number
   name: string
@@ -5,6 +7,9 @@ export interface Dashboard {
   layout_config?: Record<string, any>
   owner_id: number
   version: number
+  widgets?: Widget[]
+  is_public?: boolean
+  is_shared?: boolean
   created_at: string
   updated_at?: string
 }

@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     # Database
-    POSTGRES_SERVER: str = "db"
+    POSTGRES_SERVER: str = "localhost"  # Use "db" when running in Docker, "localhost" for local dev
     POSTGRES_PORT: int = 5432
     POSTGRES_USER: str = "intellibi"
     POSTGRES_PASSWORD: str = "intellibi"
