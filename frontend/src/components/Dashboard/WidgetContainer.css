@@ -50,11 +50,12 @@
 
 .widget-content {
   flex: 1;
-  padding: 1rem;
+  padding: 0;
   overflow: auto;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 0;
 }
 
 .widget-chart-placeholder,
@@ -137,4 +138,67 @@
 
 .widget-save-btn:hover {
   background: var(--primary-dark);
+}
+
+.widget-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.widget-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  color: #d32f2f;
+  text-align: center;
+}
+
+.widget-error p {
+  margin: 0.5rem 0;
+}
+
+.widget-retry-btn {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.widget-retry-btn:hover {
+  background: var(--primary-dark);
+}
+
+.widget-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+}
+
+.widget-text {
+  padding: 1rem;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+.text-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
 }
