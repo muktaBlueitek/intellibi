@@ -1,0 +1,26 @@
+.export-conversation {
+  display: flex;
+  gap: 8px;
+}
+
+.export-conversation-btn {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.export-conversation-btn:hover:not(:disabled) {
+  background: var(--background);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.export-conversation-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

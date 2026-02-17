@@ -1,0 +1,39 @@
+.query-suggestions {
+  margin-top: 8px;
+  padding: 0 4px;
+}
+
+.query-suggestions-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.query-suggestions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.query-suggestion-btn {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.query-suggestion-btn:hover:not(:disabled) {
+  background: var(--background);
+  border-color: var(--primary-light);
+  color: var(--primary-color);
+}
+
+.query-suggestion-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
