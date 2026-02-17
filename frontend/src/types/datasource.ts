@@ -31,3 +31,17 @@ export interface DataSourceCreate {
   username?: string
   api_url?: string
 }
+
+export interface DataSourceUpdate {
+  name?: string
+  description?: string
+  connection_config?: Record<string, any>
+  is_active?: boolean
+}
+
+export interface DataSourceUpdate {
+  name?: string
+  description?: string
+  connection_config?: Record<string, any>
+  is_active?: boolean
+}
