@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
 
 from app.core.database import get_db
+from app.core.cache import cache_service
 from app.models.dashboard import Dashboard, DashboardShare, DashboardVersion, SharePermission
 from app.models.widget import Widget
 from app.models.user import User
@@ -82,6 +83,13 @@ def read_dashboard(
     current_user: User = Depends(get_current_active_user)
 ):
     """Get a specific dashboard by ID."""
+    # Try cache first
+    cache_key = f"dashboard:{dashboard_id}:user:{current_user.id}"
+    cached_dashboard = cache_service.get(cache_key)
+    if cached_dashboard:
+        # Return cached dict (FastAPI will serialize it properly)
+        return cached_dashboard
+    
     dashboard = db.query(Dashboard).filter(Dashboard.id == dashboard_id).first()
     if dashboard is None:
         raise HTTPException(
@@ -96,6 +104,11 @@ def read_dashboard(
             detail="Not enough permissions"
         )
     
+    # Cache the result (serialize to dict for caching)
+    dashboard_dict = DashboardSchema.model_validate(dashboard).model_dump()
+    cache_service.set(cache_key, dashboard_dict, ttl=300)
+    
+    # Return the original dashboard object (not cached dict)
     return dashboard
 
 
@@ -127,6 +140,10 @@ def update_dashboard(
     
     db.commit()
     db.refresh(dashboard)
+    
+    # Invalidate cache
+    cache_service.invalidate_dashboard_cache(dashboard_id)
+    
     return dashboard
 
 
@@ -150,6 +167,9 @@ def delete_dashboard(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only the owner can delete this dashboard"
         )
+    
+    # Invalidate cache before deletion
+    cache_service.invalidate_dashboard_cache(dashboard_id)
     
     db.delete(dashboard)
     db.commit()

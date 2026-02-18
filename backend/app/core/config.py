@@ -17,6 +17,13 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = "intellibi"
     POSTGRES_DB: str = "intellibi"
 
+    # Redis Cache
+    REDIS_HOST: str = "localhost"  # Use "redis" when running in Docker
+    REDIS_PORT: int = 6379
+    REDIS_DB: int = 0
+    REDIS_PASSWORD: str = ""
+    CACHE_TTL: int = 300  # Default cache TTL in seconds (5 minutes)
+
     # LLM/Chatbot Configuration
     OPENAI_API_KEY: str = ""
     LLM_PROVIDER: str = "openai"  # openai, ollama, etc.

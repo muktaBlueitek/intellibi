@@ -1,11 +1,15 @@
 import React, { useState } from 'react'
 import { Widget } from '../../types/widget'
 import { useWidgetData } from '../../hooks/useWidgetData'
-import LineChart from '../Charts/LineChart'
-import BarChart from '../Charts/BarChart'
-import PieChart from '../Charts/PieChart'
-import AreaChart from '../Charts/AreaChart'
-import DataTable from '../Charts/DataTable'
+import {
+  LazyLineChart,
+  LazyBarChart,
+  LazyPieChart,
+  LazyAreaChart,
+  LazyDataTable,
+  LazyChartWrapper,
+  ChartLoadingFallback,
+} from '../Charts/LazyCharts'
 import { exportToCSV, exportChartToPNG } from '../../utils/export'
 import './WidgetContainer.css'
 
@@ -59,31 +63,32 @@ const WidgetContainer: React.FC<WidgetContainerProps> = ({
       case 'line_chart':
         return (
           <div id={`widget-${widget.id}`}>
-            <LineChart data={data} config={chartConfig} />
+            <LazyChartWrapper component={LazyLineChart} data={data} config={chartConfig} />
           </div>
         )
       case 'bar_chart':
         return (
           <div id={`widget-${widget.id}`}>
-            <BarChart data={data} config={chartConfig} />
+            <LazyChartWrapper component={LazyBarChart} data={data} config={chartConfig} />
           </div>
         )
       case 'pie_chart':
         return (
           <div id={`widget-${widget.id}`}>
-            <PieChart data={data} config={chartConfig} />
+            <LazyChartWrapper component={LazyPieChart} data={data} config={chartConfig} />
           </div>
         )
       case 'area_chart':
         return (
           <div id={`widget-${widget.id}`}>
-            <AreaChart data={data} config={chartConfig} />
+            <LazyChartWrapper component={LazyAreaChart} data={data} config={chartConfig} />
           </div>
         )
       case 'table':
         return (
-          <DataTable 
-            data={data} 
+          <LazyChartWrapper
+            component={LazyDataTable}
+            data={data}
             columns={columns}
             config={{ title: widget.name, ...widget.config }}
           />
