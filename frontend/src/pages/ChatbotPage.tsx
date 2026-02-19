@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { chatbotService } from '../services/api/chatbotService'
 import { datasourceService } from '../services/api/datasourceService'
+import { useWebSocket } from '../hooks/useWebSocket'
 import type {
   Conversation,
   ConversationList,
@@ -45,6 +46,7 @@ const ChatbotPage = () => {
   const [datasourceId, setDatasourceId] = useState<number | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const listLoadingRef = useRef(false)
+  const { client, subscribe, unsubscribe } = useWebSocket()
 
   const loadConversations = async () => {
     if (listLoadingRef.current) return
@@ -86,6 +88,37 @@ const ChatbotPage = () => {
     const suggested = (lastAssistant?.message_metadata?.suggested_queries) || DEFAULT_SUGGESTIONS
     setSuggestedQueries(Array.isArray(suggested) ? suggested : DEFAULT_SUGGESTIONS)
   }, [currentConversation])
+
+  // WebSocket real-time chat updates
+  useEffect(() => {
+    if (!currentConversation || !client.isConnected()) return
+
+    const conversationId = currentConversation.id
+    client.subscribeToChat(conversationId)
+
+    const handleChatMessage = (message: any) => {
+      if (message.type === 'chat_message' && message.message) {
+        // Add new message if it's not already in the list
+        setMessages((prev) => {
+          const exists = prev.some((m) => m.id === message.message.id)
+          if (exists) return prev
+          return [...prev, message.message]
+        })
+        
+        // Update suggested queries if present
+        if (message.message.metadata?.suggested_queries) {
+          setSuggestedQueries(message.message.metadata.suggested_queries)
+        }
+      }
+    }
+
+    subscribe('chat_message', handleChatMessage)
+
+    return () => {
+      client.unsubscribeFromChat(conversationId)
+      unsubscribe('chat_message')
+    }
+  }, [currentConversation, client, subscribe, unsubscribe])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })

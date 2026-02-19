@@ -7,6 +7,7 @@ import { widgetService } from '../services/api/widgetService'
 import { Dashboard } from '../types/dashboard'
 import { Widget } from '../types/widget'
 import { setCurrentDashboard, setLoading, setError } from '../store/slices/dashboardSlice'
+import { useWebSocket } from '../hooks/useWebSocket'
 import DashboardGrid from '../components/Dashboard/DashboardGrid'
 import './DashboardPage.css'
 
@@ -18,12 +19,49 @@ const DashboardPage = () => {
   const [widgets, setWidgets] = useState<Widget[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const { client, subscribe, unsubscribe } = useWebSocket()
 
   useEffect(() => {
     if (id) {
       loadDashboard(parseInt(id))
     }
   }, [id])
+
+  // WebSocket real-time updates
+  useEffect(() => {
+    if (!id || !client.isConnected()) return
+
+    const dashboardId = parseInt(id)
+    client.subscribeToDashboard(dashboardId)
+
+    const handleDashboardUpdate = (message: any) => {
+      if (message.update_type === 'dashboard_updated' && message.data) {
+        dispatch(setCurrentDashboard(message.data))
+      } else if (message.update_type === 'layout_change' && message.data?.layout) {
+        // Update layout if we're not currently editing
+        if (!isEditing && currentDashboard) {
+          dispatch(setCurrentDashboard({ ...currentDashboard, layout_config: message.data.layout }))
+        }
+      } else if (message.update_type === 'widget_update' && message.data?.widget_data) {
+        // Update widget data
+        setWidgets((prev) =>
+          prev.map((w) =>
+            w.id === message.data.widget_id ? { ...w, ...message.data.widget_data } : w
+          )
+        )
+      } else if (message.update_type === 'collaborator_update') {
+        // Show collaborator activity (could show a notification)
+        console.log('Collaborator update:', message.data)
+      }
+    }
+
+    subscribe('dashboard_update', handleDashboardUpdate)
+
+    return () => {
+      client.unsubscribeFromDashboard(dashboardId)
+      unsubscribe('dashboard_update')
+    }
+  }, [id, client, subscribe, unsubscribe, isEditing, currentDashboard, dispatch])
 
   const loadDashboard = async (dashboardId: number) => {
     try {

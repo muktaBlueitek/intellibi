@@ -20,13 +20,14 @@ from app.schemas.chatbot import (
 )
 from app.api.v1.deps import get_current_active_user
 from app.services.chatbot import ChatbotService
+from app.api.v1.endpoints.websocket import broadcast_chat_message
 
 router = APIRouter()
 chatbot_service = ChatbotService()
 
 
 @router.post("/chat", response_model=ChatResponse, status_code=status.HTTP_200_OK)
-def chat(
+async def chat(
     request: ChatRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
@@ -40,7 +41,36 @@ def chat(
             datasource_id=request.datasource_id,
             db=db
         )
-        return ChatResponse(**result)
+        response = ChatResponse(**result)
+        
+        # Broadcast user message first
+        from app.api.v1.endpoints.websocket import broadcast_user_message
+        await broadcast_user_message(
+            response.conversation_id,
+            current_user.id,
+            request.message
+        )
+        
+        # Broadcast assistant response to all subscribers
+        await broadcast_chat_message(
+            response.conversation_id,
+            {
+                "id": response.message_id,
+                "role": "assistant",
+                "content": response.message,
+                "metadata": {
+                    "sql_query": response.sql_query,
+                    "execution_result": response.execution_result,
+                    "visualization_suggestion": response.visualization_suggestion,
+                    "statistical_summary": response.statistical_summary,
+                    "insights": response.insights,
+                    "suggested_queries": response.suggested_queries,
+                },
+                "created_at": str(datetime.utcnow()),
+            }
+        )
+        
+        return response
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:

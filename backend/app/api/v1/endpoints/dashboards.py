@@ -5,6 +5,11 @@ from sqlalchemy import or_, and_
 
 from app.core.database import get_db
 from app.core.cache import cache_service
+from app.api.v1.endpoints.websocket import (
+    broadcast_dashboard_update,
+    broadcast_dashboard_layout_change,
+    broadcast_collaborator_update,
+)
 from app.models.dashboard import Dashboard, DashboardShare, DashboardVersion, SharePermission
 from app.models.widget import Widget
 from app.models.user import User
@@ -113,7 +118,7 @@ def read_dashboard(
 
 
 @router.put("/{dashboard_id}", response_model=DashboardSchema)
-def update_dashboard(
+async def update_dashboard(
     dashboard_id: int,
     dashboard_update: DashboardUpdate,
     db: Session = Depends(get_db),
@@ -143,6 +148,13 @@ def update_dashboard(
     
     # Invalidate cache
     cache_service.invalidate_dashboard_cache(dashboard_id)
+    
+    # Broadcast update
+    await broadcast_dashboard_update(
+        dashboard_id,
+        "dashboard_updated",
+        DashboardSchema.model_validate(dashboard).model_dump()
+    )
     
     return dashboard
 
@@ -178,7 +190,7 @@ def delete_dashboard(
 
 # Layout Management Endpoints
 @router.put("/{dashboard_id}/layout", response_model=DashboardSchema)
-def update_dashboard_layout(
+async def update_dashboard_layout(
     dashboard_id: int,
     layout_update: LayoutUpdate,
     db: Session = Depends(get_db),
@@ -202,6 +214,10 @@ def update_dashboard_layout(
     dashboard.layout_config = layout_update.layout_config
     db.commit()
     db.refresh(dashboard)
+    
+    # Broadcast layout change
+    await broadcast_dashboard_layout_change(dashboard_id, layout_update.layout_config)
+    
     return dashboard
 
 

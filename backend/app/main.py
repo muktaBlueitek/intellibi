@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.api.v1.endpoints import health, auth, users, datasources, dashboards, widgets, upload, database_connections, analytics, chatbot
+from app.api.v1.endpoints import health, auth, users, datasources, dashboards, widgets, upload, database_connections, analytics, chatbot, websocket, notifications
 
 
 def create_application() -> FastAPI:
@@ -32,6 +32,8 @@ def create_application() -> FastAPI:
     app.include_router(database_connections.router, prefix="/api/v1/database", tags=["database-connections"])
     app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["analytics"])
     app.include_router(chatbot.router, prefix="/api/v1/chatbot", tags=["chatbot"])
+    app.include_router(websocket.router, prefix="/api/v1", tags=["websocket"])
+    app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["notifications"])
 
     return app
 
