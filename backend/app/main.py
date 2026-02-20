@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 
 from app.core.config import settings
 from app.api.v1.endpoints import health, auth, users, datasources, dashboards, widgets, upload, database_connections, analytics, chatbot, websocket, notifications
@@ -34,6 +36,28 @@ def create_application() -> FastAPI:
     app.include_router(chatbot.router, prefix="/api/v1/chatbot", tags=["chatbot"])
     app.include_router(websocket.router, prefix="/api/v1", tags=["websocket"])
     app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["notifications"])
+
+    # Global exception handlers
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception_handler(request: Request, exc: RequestValidationError):
+        return JSONResponse(
+            status_code=422,
+            content={
+                "detail": "Validation error",
+                "errors": exc.errors(),
+            },
+        )
+
+    @app.exception_handler(Exception)
+    async def unhandled_exception_handler(request: Request, exc: Exception):
+        if settings.ENVIRONMENT == "development":
+            raise exc
+        return JSONResponse(
+            status_code=500,
+            content={
+                "detail": "An unexpected error occurred. Please try again later.",
+            },
+        )
 
     return app
 

@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import { ThemeProvider } from './components/Common/ThemeProvider'
 import Layout from './components/Common/Layout'
+import ErrorBoundary from './components/Common/ErrorBoundary'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProtectedRoute from './components/Common/ProtectedRoute'
@@ -28,8 +29,9 @@ const PageLoadingFallback = () => (
 
 function App() {
   return (
-    <ThemeProvider>
-      <Routes>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route
@@ -48,8 +50,9 @@ function App() {
           <Route path="chatbot" element={<Suspense fallback={<PageLoadingFallback />}><ChatbotPage /></Suspense>} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </ThemeProvider>
+        </Routes>
+      </ThemeProvider>
+    </ErrorBoundary>
   )
 }
 

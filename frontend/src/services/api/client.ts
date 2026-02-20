@@ -32,6 +32,15 @@ apiClient.interceptors.response.use(
       localStorage.removeItem('token')
       window.location.href = '/login'
     }
+    // Normalize error message for consistent handling
+    if (error.response?.data?.detail) {
+      const detail = error.response.data.detail
+      error.message = Array.isArray(detail)
+        ? detail.map((e: { msg?: string }) => e.msg || JSON.stringify(e)).join(', ')
+        : typeof detail === 'string'
+          ? detail
+          : error.message
+    }
     return Promise.reject(error)
   }
 )
