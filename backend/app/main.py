@@ -9,9 +9,38 @@ from app.api.v1.endpoints import health, auth, users, datasources, dashboards, w
 
 def create_application() -> FastAPI:
     app = FastAPI(
-        title="IntelliBI Backend",
+        title="IntelliBI API",
         version="0.1.0",
-        description="Backend API for the IntelliBI Business Intelligence Platform.",
+        description="""
+## IntelliBI - Intelligent Business Intelligence Platform
+
+REST API for dashboards, data sources, analytics, and AI-powered chatbot.
+
+### Features
+- **Authentication** - JWT-based auth, user management
+- **Dashboards** - Create, share, version dashboards with widgets
+- **Data Sources** - CSV/Excel upload, PostgreSQL/MySQL connectors
+- **Analytics** - Query processing, aggregations, time-series
+- **Chatbot** - Natural language to SQL, insights, visualization suggestions
+- **Real-time** - WebSocket for live updates and notifications
+        """.strip(),
+        docs_url="/api/v1/docs",
+        redoc_url="/api/v1/redoc",
+        openapi_url="/api/v1/openapi.json",
+        openapi_tags=[
+            {"name": "health", "description": "Health check endpoints"},
+            {"name": "authentication", "description": "Login, register, JWT"},
+            {"name": "users", "description": "User management"},
+            {"name": "datasources", "description": "Data source CRUD and upload"},
+            {"name": "dashboards", "description": "Dashboard CRUD, layout, sharing"},
+            {"name": "widgets", "description": "Dashboard widget management"},
+            {"name": "analytics", "description": "Query execution, aggregations"},
+            {"name": "chatbot", "description": "AI chatbot, conversations"},
+            {"name": "websocket", "description": "Real-time WebSocket"},
+            {"name": "notifications", "description": "User notifications"},
+        ],
+        contact={"name": "IntelliBI", "url": "https://github.com/muktaBlueitek/intellibi"},
+        license_info={"name": "MIT"},
     )
 
     # Configure CORS

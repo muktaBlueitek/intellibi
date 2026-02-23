@@ -76,26 +76,46 @@ cd frontend
 npm install
 ```
 
-4. Run with Docker Compose:
+4. Configure environment:
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+# Edit .env files with your values
+```
+
+5. Run with Docker Compose:
 ```bash
 docker-compose up -d
 ```
 
+### Production Deployment
+
+```bash
+cp .env.example .env
+# Set SECRET_KEY, POSTGRES_PASSWORD, OPENAI_API_KEY in .env
+docker-compose -f docker-compose.prod.yml up -d
+# Or: ./scripts/deploy.sh prod
+```
+
+See [docs/USER_GUIDE.md](docs/USER_GUIDE.md) and [docs/DEMO.md](docs/DEMO.md) for more.
+
 ## Development Status
 
-This project is currently in active development. See [ProjectScope.md](ProjectScope.md) for the complete 20-day development plan.
+✅ **20-day development plan complete.** See [ProjectScope.md](ProjectScope.md).
 
 ## Features
 
 - ✅ Project setup and architecture
-- ✅ Backend foundation (FastAPI skeleton, DB config, Docker, health endpoint)
-- ✅ Authentication & User Management (JWT, RBAC, user endpoints)
-- ✅ Database Models & CRUD Operations (Dashboards, DataSources, Widgets)
-- ✅ File Upload Service (CSV/Excel parsing, validation, cleaning)
-- ✅ Database Connector Service (PostgreSQL, MySQL with connection pooling)
-- 🚧 Frontend foundation (in progress)
-- 🚧 AI chatbot integration (planned)
-- 🚧 Data analytics dashboards (planned)
+- ✅ Backend foundation (FastAPI, PostgreSQL, Redis, Docker)
+- ✅ Authentication & User Management (JWT, RBAC)
+- ✅ Dashboards (CRUD, layout, sharing, versioning)
+- ✅ Data Sources (CSV/Excel upload, PostgreSQL, MySQL connectors)
+- ✅ Analytics Engine (query processing, aggregations)
+- ✅ AI Chatbot (natural language to SQL, insights)
+- ✅ Frontend (React, dashboards, data sources, chatbot)
+- ✅ Real-time (WebSocket, notifications)
+- ✅ Testing (pytest, Vitest, Playwright)
+- ✅ Documentation & Deployment (Swagger, user guide, docker-compose.prod)
 
 ## Contributing
 
