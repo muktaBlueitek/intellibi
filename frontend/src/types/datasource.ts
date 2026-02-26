@@ -8,6 +8,7 @@ export interface DataSource {
   connection_config?: Record<string, any>
   file_path?: string
   file_name?: string
+  file_size?: number
   host?: string
   port?: number
   database_name?: string
@@ -30,13 +31,6 @@ export interface DataSourceCreate {
   database_name?: string
   username?: string
   api_url?: string
-}
-
-export interface DataSourceUpdate {
-  name?: string
-  description?: string
-  connection_config?: Record<string, any>
-  is_active?: boolean
 }
 
 export interface DataSourceUpdate {
