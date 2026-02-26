@@ -98,16 +98,28 @@ const ChatbotPage = () => {
 
     const handleChatMessage = (message: any) => {
       if (message.type === 'chat_message' && message.message) {
-        // Add new message if it's not already in the list
+        const raw = message.message
+
+        const normalized: ChatMessageType = {
+          id: raw.id ?? Date.now(),
+          conversation_id: message.conversation_id ?? currentConversation.id,
+          role: raw.role,
+          content: raw.content,
+          message_metadata: raw.message_metadata ?? raw.metadata,
+          created_at: raw.created_at ?? new Date().toISOString(),
+        }
+
+        // Add new message if it's not already in the list (ignore id=0 placeholder)
         setMessages((prev) => {
-          const exists = prev.some((m) => m.id === message.message.id)
+          const exists =
+            normalized.id !== 0 && prev.some((m) => m.id === normalized.id)
           if (exists) return prev
-          return [...prev, message.message]
+          return [...prev, normalized]
         })
-        
+
         // Update suggested queries if present
-        if (message.message.metadata?.suggested_queries) {
-          setSuggestedQueries(message.message.metadata.suggested_queries)
+        if (normalized.message_metadata?.suggested_queries) {
+          setSuggestedQueries(normalized.message_metadata.suggested_queries)
         }
       }
     }
