@@ -13,18 +13,27 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7-alpine
+    container_name: intellibi-redis
+    ports:
+      - "6379:6379"
+
   backend:
     build:
       context: ./backend
     container_name: intellibi-backend
     depends_on:
       - db
+      - redis
     environment:
       POSTGRES_SERVER: db
       POSTGRES_PORT: 5432
       POSTGRES_USER: intellibi
       POSTGRES_PASSWORD: intellibi
       POSTGRES_DB: intellibi
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     ports:
       - "8000:8000"
 
