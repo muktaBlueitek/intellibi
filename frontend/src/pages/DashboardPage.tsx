@@ -19,7 +19,7 @@ const DashboardPage = () => {
   const [widgets, setWidgets] = useState<Widget[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  const { client, subscribe, unsubscribe } = useWebSocket()
+  const { client, subscribe, unsubscribe, isConnected } = useWebSocket()
 
   useEffect(() => {
     if (id) {
@@ -61,7 +61,7 @@ const DashboardPage = () => {
       client.unsubscribeFromDashboard(dashboardId)
       unsubscribe('dashboard_update')
     }
-  }, [id, client, subscribe, unsubscribe, isEditing, currentDashboard, dispatch])
+  }, [id, client, subscribe, unsubscribe, isConnected, isEditing, currentDashboard, dispatch])
 
   const loadDashboard = async (dashboardId: number) => {
     try {

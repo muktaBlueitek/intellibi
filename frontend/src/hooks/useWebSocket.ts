@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState } from 'react'
 import { getWebSocketClient } from '../services/websocket/websocketClient'
 import { useAppSelector } from './redux'
 
@@ -8,24 +8,33 @@ export const useWebSocket = () => {
   const { token } = useAppSelector((state) => state.auth)
   const wsClientRef = useRef(getWebSocketClient())
   const handlersRef = useRef<Map<string, MessageHandler>>(new Map())
+  const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
-    if (!token) return
+    if (!token) {
+      setIsConnected(false)
+      return
+    }
 
     const client = wsClientRef.current
+    let cancelled = false
 
     const connect = async () => {
       try {
         await client.connect(token)
+        if (!cancelled) setIsConnected(true)
       } catch (error) {
         console.error('Failed to connect WebSocket:', error)
+        if (!cancelled) setIsConnected(false)
       }
     }
 
     connect()
 
     return () => {
+      cancelled = true
       client.disconnect()
+      setIsConnected(false)
     }
   }, [token])
 
@@ -46,7 +55,6 @@ export const useWebSocket = () => {
 
   useEffect(() => {
     return () => {
-      // Cleanup all handlers on unmount
       handlersRef.current.forEach((handler, messageType) => {
         wsClientRef.current.off(messageType, handler)
       })
@@ -58,6 +66,6 @@ export const useWebSocket = () => {
     client: wsClientRef.current,
     subscribe,
     unsubscribe,
-    isConnected: wsClientRef.current.isConnected(),
+    isConnected,
   }
 }

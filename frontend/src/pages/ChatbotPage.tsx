@@ -46,7 +46,7 @@ const ChatbotPage = () => {
   const [datasourceId, setDatasourceId] = useState<number | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const listLoadingRef = useRef(false)
-  const { client, subscribe, unsubscribe } = useWebSocket()
+  const { client, subscribe, unsubscribe, isConnected } = useWebSocket()
 
   const loadConversations = async () => {
     if (listLoadingRef.current) return
@@ -130,7 +130,7 @@ const ChatbotPage = () => {
       client.unsubscribeFromChat(conversationId)
       unsubscribe('chat_message')
     }
-  }, [currentConversation, client, subscribe, unsubscribe])
+  }, [currentConversation, client, subscribe, unsubscribe, isConnected])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
