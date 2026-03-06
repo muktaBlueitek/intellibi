@@ -95,12 +95,13 @@ const WidgetContainer: React.FC<WidgetContainerProps> = ({
         )
       case 'metric':
         // Calculate metric value from first row, first numeric column
-        const metricValue = data.length > 0 && columns.length > 0
+        const rawMetric = data.length > 0 && columns.length > 0
           ? data[0][columns.find(col => {
               const val = data[0][col]
               return typeof val === 'number' || (typeof val === 'string' && !isNaN(Number(val)))
             }) || columns[0]]
-          : '--'
+          : null
+        const metricValue = rawMetric != null ? String(rawMetric) : '--'
         return (
           <div className="widget-metric">
             <p className="metric-value">{metricValue}</p>
