@@ -72,7 +72,7 @@ def read_dashboards(
         shared_dashboard_ids = db.query(DashboardShare.dashboard_id).filter(
             DashboardShare.user_id == current_user.id
         ).subquery()
-        conditions.append(Dashboard.id.in_(db.query(shared_dashboard_ids)))
+        conditions.append(Dashboard.id.in_(shared_dashboard_ids))
     
     if include_public:
         conditions.append(Dashboard.is_public == True)

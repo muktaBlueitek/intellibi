@@ -171,24 +171,24 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess, onCancel }) =>
         <div className="preview-section">
           <h3>Preview</h3>
           <div className="preview-info">
-            <p><strong>Columns:</strong> {preview.metadata?.columns?.length || 0}</p>
-            <p><strong>Rows:</strong> {preview.metadata?.row_count || 0}</p>
+            <p><strong>Columns:</strong> {preview.preview?.columns?.length ?? preview.metadata?.columns?.length ?? 0}</p>
+            <p><strong>Rows:</strong> {preview.preview?.total_rows ?? preview.metadata?.row_count ?? 0}</p>
           </div>
-          {preview.preview && preview.preview.length > 0 && (
+          {preview.preview?.data != null && (
             <div className="preview-table">
               <table>
                 <thead>
                   <tr>
-                    {Object.keys(preview.preview[0]).map((col) => (
+                    {(preview.preview.columns ?? preview.metadata?.columns ?? []).map((col: string) => (
                       <th key={col}>{col}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {preview.preview.slice(0, 10).map((row: any, idx: number) => (
+                  {preview.preview.data.slice(0, 10).map((row: any, idx: number) => (
                     <tr key={idx}>
-                      {Object.values(row).map((val: any, colIdx: number) => (
-                        <td key={colIdx}>{String(val)}</td>
+                      {(preview.preview.columns ?? Object.keys(row)).map((col: string, colIdx: number) => (
+                        <td key={colIdx}>{String(row[col] ?? '')}</td>
                       ))}
                     </tr>
                   ))}
