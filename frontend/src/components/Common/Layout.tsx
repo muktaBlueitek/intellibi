@@ -1,4 +1,4 @@
-import { Outlet, Link, useNavigate } from 'react-router-dom'
+import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../../hooks/redux'
 import { logout } from '../../store/slices/authSlice'
@@ -31,9 +31,15 @@ const Layout = () => {
             <h1>IntelliBI</h1>
           </Link>
           <nav className="nav">
-            <Link to="/dashboards">Dashboards</Link>
-            <Link to="/datasources">Data Sources</Link>
-            <Link to="/chatbot">Chatbot</Link>
+            <NavLink to="/dashboards" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+              Dashboards
+            </NavLink>
+            <NavLink to="/datasources" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+              Data Sources
+            </NavLink>
+            <NavLink to="/chatbot" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} end>
+              Chatbot
+            </NavLink>
           </nav>
           <div className="header-actions">
             {currentUser && (

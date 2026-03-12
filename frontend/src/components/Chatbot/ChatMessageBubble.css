@@ -106,7 +106,7 @@
   text-transform: uppercase;
   padding: 2px 8px;
   border-radius: 4px;
-  background: var(--primary-light);
+  background: var(--primary-color);
   color: #fff;
   margin-bottom: 6px;
 }

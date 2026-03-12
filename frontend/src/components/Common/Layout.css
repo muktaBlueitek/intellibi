@@ -33,17 +33,27 @@
   justify-content: center;
 }
 
-.nav a {
+.nav-link {
   text-decoration: none;
   color: var(--text-primary);
   font-weight: 500;
   padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  border-radius: 6px;
+  transition: background-color 0.2s, color 0.2s;
 }
 
-.nav a:hover {
+.nav-link:hover {
   background-color: var(--background);
+}
+
+.nav-link.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.nav-link.active:hover {
+  background-color: var(--primary-dark);
+  color: white;
 }
 
 .header-actions {
