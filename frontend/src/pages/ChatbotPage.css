@@ -1,8 +1,10 @@
 .chatbot-page {
   display: flex;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 64px);
   min-height: 400px;
   background: var(--background);
+  margin: -2rem;
+  padding: 0;
 }
 
 .chatbot-sidebar {
@@ -59,8 +61,12 @@
 }
 
 .chatbot-conv-item.active {
-  background: var(--primary-light);
+  background: var(--primary-color);
   color: #fff;
+}
+
+.chatbot-conv-item.active .chatbot-conv-meta {
+  opacity: 0.9;
 }
 
 .chatbot-conv-title {
