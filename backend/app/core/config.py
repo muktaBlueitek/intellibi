@@ -24,6 +24,11 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str = ""
     CACHE_TTL: int = 300  # Default cache TTL in seconds (5 minutes)
 
+    # Rate Limiting
+    RATE_LIMIT_ENABLED: bool = True
+    RATE_LIMIT_GENERAL: str = "100/minute"  # General API endpoints
+    RATE_LIMIT_AUTH: str = "10/minute"  # Auth endpoints (login, register)
+
     # LLM/Chatbot Configuration
     OPENAI_API_KEY: str = ""
     LLM_PROVIDER: str = "openai"  # openai, ollama, etc.

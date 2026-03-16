@@ -2,8 +2,12 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 from app.core.config import settings
+from app.core.rate_limit import limiter
 from app.api.v1.endpoints import health, auth, users, datasources, dashboards, widgets, upload, database_connections, analytics, chatbot, websocket, notifications
 
 
@@ -51,6 +55,11 @@ REST API for dashboards, data sources, analytics, and AI-powered chatbot.
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # Rate limiting
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    app.add_middleware(SlowAPIMiddleware)
 
     # Routers
     app.include_router(health.router, prefix="/api/v1", tags=["health"])
