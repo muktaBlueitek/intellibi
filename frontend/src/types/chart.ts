@@ -26,7 +26,7 @@ export interface ChartConfig {
   outerRadius?: number
   labelKey?: string
   valueKey?: string
-  
+
   // Responsive
   responsive?: boolean
 }
