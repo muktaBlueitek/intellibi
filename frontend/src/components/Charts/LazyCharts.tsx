@@ -5,6 +5,7 @@ export const LazyLineChart = lazy(() => import('./LineChart'))
 export const LazyBarChart = lazy(() => import('./BarChart'))
 export const LazyPieChart = lazy(() => import('./PieChart'))
 export const LazyAreaChart = lazy(() => import('./AreaChart'))
+export const LazyHeatmap = lazy(() => import('./Heatmap'))
 export const LazyDataTable = lazy(() => import('./DataTable'))
 
 // Loading fallback component

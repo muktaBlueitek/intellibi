@@ -6,6 +6,7 @@ import {
   LazyBarChart,
   LazyPieChart,
   LazyAreaChart,
+  LazyHeatmap,
   LazyDataTable,
   LazyChartWrapper,
   ChartLoadingFallback,
@@ -84,6 +85,12 @@ const WidgetContainer: React.FC<WidgetContainerProps> = ({
             <LazyChartWrapper component={LazyAreaChart} data={data} config={chartConfig} />
           </div>
         )
+      case 'heatmap':
+        return (
+          <div id={`widget-${widget.id}`}>
+            <LazyChartWrapper component={LazyHeatmap} data={data} config={chartConfig} />
+          </div>
+        )
       case 'table':
         return (
           <LazyChartWrapper
@@ -131,8 +138,9 @@ const WidgetContainer: React.FC<WidgetContainerProps> = ({
         <div className="widget-header">
           <span className="widget-title">{widget.name}</span>
           <div className="widget-actions">
-            {(widget.type === 'line_chart' || widget.type === 'bar_chart' || 
-              widget.type === 'pie_chart' || widget.type === 'area_chart') && (
+            {(widget.type === 'line_chart' || widget.type === 'bar_chart' ||
+              widget.type === 'pie_chart' || widget.type === 'area_chart' ||
+              widget.type === 'heatmap') && (
               <>
                 <button
                   className="widget-action-btn"
