@@ -5,11 +5,12 @@ import { DataSource } from '../types/datasource'
 import { setDataSources, setLoading, setError } from '../store/slices/datasourceSlice'
 import FileUpload from '../components/DataSources/FileUpload'
 import DatabaseConnectionForm from '../components/DataSources/DatabaseConnectionForm'
+import RestApiConnectionForm from '../components/DataSources/RestApiConnectionForm'
 import DataPreview from '../components/DataSources/DataPreview'
 import { ChartData } from '../types/chart'
 import './DataSourcesPage.css'
 
-type ViewMode = 'list' | 'upload' | 'database' | 'preview'
+type ViewMode = 'list' | 'upload' | 'database' | 'rest_api' | 'preview'
 
 const DataSourcesPage = () => {
   const dispatch = useAppDispatch()
@@ -39,6 +40,11 @@ const DataSourcesPage = () => {
   }
 
   const handleDatabaseSuccess = () => {
+    setViewMode('list')
+    loadDataSources()
+  }
+
+  const handleRestApiSuccess = () => {
     setViewMode('list')
     loadDataSources()
   }
@@ -79,6 +85,15 @@ const DataSourcesPage = () => {
             file_size: datasource.file_size,
             row_count: datasource.connection_config.metadata?.row_count,
           },
+        })
+        setViewMode('preview')
+      } else if (datasource.type === 'rest_api') {
+        // For REST API, fetch preview from backend
+        const result = await datasourceService.getDataSourcePreview(datasource.id)
+        setPreviewData({
+          data: result.data,
+          columns: result.columns,
+          metadata: { api_url: datasource.api_url },
         })
         setViewMode('preview')
       } else {
@@ -131,6 +146,17 @@ const DataSourcesPage = () => {
     )
   }
 
+  if (viewMode === 'rest_api') {
+    return (
+      <div className="datasources-page">
+        <RestApiConnectionForm
+          onConnectionSuccess={handleRestApiSuccess}
+          onCancel={() => setViewMode('list')}
+        />
+      </div>
+    )
+  }
+
   if (viewMode === 'preview' && previewData) {
     return (
       <div className="datasources-page">
@@ -160,6 +186,12 @@ const DataSourcesPage = () => {
             onClick={() => setViewMode('database')}
           >
             + Database Connection
+          </button>
+          <button
+            className="action-btn primary"
+            onClick={() => setViewMode('rest_api')}
+          >
+            + REST API
           </button>
         </div>
       </div>
@@ -200,6 +232,9 @@ const DataSourcesPage = () => {
                         {ds.host}:{ds.port}/{ds.database_name}
                       </div>
                     )}
+                    {ds.api_url && (
+                      <div className="connection-info">{ds.api_url}</div>
+                    )}
                   </td>
                   <td>
                     <span className={`type-badge ${ds.type}`}>
@@ -218,7 +253,7 @@ const DataSourcesPage = () => {
                   <td>{new Date(ds.created_at).toLocaleDateString()}</td>
                   <td>
                     <div className="action-buttons">
-                      {ds.type === 'file' && (
+                      {(ds.type === 'file' || ds.type === 'rest_api') && (
                         <button
                           className="action-btn small"
                           onClick={() => handlePreview(ds)}

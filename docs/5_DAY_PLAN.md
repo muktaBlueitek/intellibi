@@ -50,18 +50,18 @@ Based on analysis of the codebase, the following gaps and opportunities were ide
 
 ---
 
-## Day 3: REST API Data Source Connector
+## Day 3: REST API Data Source Connector ✅
 
 **Objective:** Enable adding external REST APIs as data sources (type exists, no implementation).
 
 **Tasks:**
-- [ ] Backend: Create REST API connector service (HTTP fetch, configurable endpoints)
-- [ ] Backend: Add endpoint to create/test REST API data sources
-- [ ] Backend: Support JSON array/object response parsing for analytics
-- [ ] Frontend: Create `RestApiConnectionForm.tsx` (URL, auth, headers)
-- [ ] Frontend: Add REST API option to data source creation flow
+- [x] Backend: Create REST API connector service (HTTP fetch, configurable endpoints)
+- [x] Backend: Add endpoint to create/test REST API data sources
+- [x] Backend: Support JSON array/object response parsing for analytics
+- [x] Frontend: Create `RestApiConnectionForm.tsx` (URL, auth, headers)
+- [x] Frontend: Add REST API option to data source creation flow
 
-**Deliverables:** REST API data source backend + frontend, docs update.
+**Deliverables:** REST API data source backend + frontend (`app/services/rest_api_connector.py`, `app/api/v1/endpoints/rest_api.py`, `RestApiConnectionForm.tsx`).
 
 ---
 

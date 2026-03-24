@@ -8,7 +8,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from app.core.config import settings
 from app.core.rate_limit import limiter
-from app.api.v1.endpoints import health, auth, users, datasources, dashboards, widgets, upload, database_connections, analytics, chatbot, websocket, notifications
+from app.api.v1.endpoints import health, auth, users, datasources, dashboards, widgets, upload, database_connections, rest_api, analytics, chatbot, websocket, notifications
 
 
 def create_application() -> FastAPI:
@@ -70,6 +70,7 @@ REST API for dashboards, data sources, analytics, and AI-powered chatbot.
     app.include_router(widgets.router, prefix="/api/v1/widgets", tags=["widgets"])
     app.include_router(upload.router, prefix="/api/v1/upload", tags=["upload"])
     app.include_router(database_connections.router, prefix="/api/v1/database", tags=["database-connections"])
+    app.include_router(rest_api.router, prefix="/api/v1/rest-api", tags=["rest-api"])
     app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["analytics"])
     app.include_router(chatbot.router, prefix="/api/v1/chatbot", tags=["chatbot"])
     app.include_router(websocket.router, prefix="/api/v1", tags=["websocket"])

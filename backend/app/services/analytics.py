@@ -9,6 +9,7 @@ from sqlalchemy.engine import Connection
 from app.models.datasource import DataSource, DataSourceType
 from app.services.database_connector import DatabaseConnector
 from app.services.file_upload import FileUploadService
+from app.services.rest_api_connector import RestApiConnector
 
 
 class AggregationFunction(str, Enum):
@@ -262,6 +263,7 @@ class AnalyticsEngine:
         """Initialize the analytics engine."""
         self.db_connector = DatabaseConnector()
         self.file_upload_service = FileUploadService()
+        self.rest_api_connector = RestApiConnector()
     
     def get_data(
         self,
@@ -298,6 +300,15 @@ class AnalyticsEngine:
                 query=query,
                 password=password,
                 limit=limit
+            )
+            return df
+        
+        elif datasource.type == DataSourceType.REST_API:
+            # Load from REST API
+            df = self.rest_api_connector.fetch_data(
+                datasource=datasource,
+                limit=limit,
+                data_path=datasource.connection_config.get("data_path") if datasource.connection_config else None,
             )
             return df
         

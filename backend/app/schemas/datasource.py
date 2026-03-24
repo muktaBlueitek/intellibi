@@ -35,6 +35,14 @@ class DataSource(DataSourceBase):
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
+    file_path: Optional[str] = None
+    file_name: Optional[str] = None
+    file_size: Optional[int] = None
+    host: Optional[str] = None
+    port: Optional[int] = None
+    database_name: Optional[str] = None
+    username: Optional[str] = None
+    api_url: Optional[str] = None
 
     class Config:
         from_attributes = True

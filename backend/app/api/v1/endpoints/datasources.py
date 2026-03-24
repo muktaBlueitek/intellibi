@@ -9,9 +9,11 @@ from app.models.user import User
 from app.schemas.datasource import DataSource as DataSourceSchema, DataSourceCreate, DataSourceUpdate
 from app.api.v1.deps import get_current_active_user
 from app.services.file_upload import FileUploadService
+from app.services.analytics import AnalyticsEngine
 
 router = APIRouter()
 file_upload_service = FileUploadService()
+analytics_engine = AnalyticsEngine()
 
 
 @router.post("/", response_model=DataSourceSchema, status_code=status.HTTP_201_CREATED)
@@ -91,6 +93,43 @@ def read_datasources(
         DataSource.owner_id == current_user.id
     ).offset(skip).limit(limit).all()
     return datasources
+
+
+@router.get("/{datasource_id}/preview")
+def get_datasource_preview(
+    datasource_id: int,
+    limit: int = 50,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Get preview data for a data source (file, REST API). Database preview requires table selection."""
+    datasource = db.query(DataSource).filter(
+        DataSource.id == datasource_id,
+        DataSource.owner_id == current_user.id
+    ).first()
+    if datasource is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Data source not found"
+        )
+
+    if datasource.type not in [DataSourceType.FILE, DataSourceType.REST_API]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Preview is only supported for file and REST API data sources"
+        )
+
+    try:
+        df = analytics_engine.get_data(datasource, limit=limit)
+        return {
+            "columns": df.columns.tolist(),
+            "data": df.to_dict(orient="records"),
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
 
 
 @router.get("/{datasource_id}", response_model=DataSourceSchema)
