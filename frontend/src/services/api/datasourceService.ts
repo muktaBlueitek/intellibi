@@ -95,4 +95,39 @@ export const datasourceService = {
     })
     return response.data
   },
+
+  testRestApiConnection: async (connection: {
+    url: string
+    auth_type?: string
+    api_key?: string
+    headers?: Record<string, string>
+    data_path?: string
+  }): Promise<{ success: boolean; message?: string }> => {
+    const response = await apiClient.post('/rest-api/test', connection)
+    return response.data
+  },
+
+  createRestApiConnection: async (
+    connection: {
+      url: string
+      auth_type?: string
+      api_key?: string
+      headers?: Record<string, string>
+      data_path?: string
+    },
+    name: string,
+    description?: string
+  ): Promise<DataSource> => {
+    const response = await apiClient.post('/rest-api', {
+      ...connection,
+      name,
+      description,
+    })
+    return response.data
+  },
+
+  getDataSourcePreview: async (datasourceId: number): Promise<{ data: any[]; columns: string[] }> => {
+    const response = await apiClient.get(`/datasources/${datasourceId}/preview`)
+    return response.data
+  },
 }

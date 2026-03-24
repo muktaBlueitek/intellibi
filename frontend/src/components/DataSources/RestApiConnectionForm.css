@@ -1,0 +1,165 @@
+.rest-api-connection-form {
+  padding: 1.5rem;
+  background: var(--surface);
+  border-radius: 8px;
+}
+
+.rest-api-connection-form h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+.rest-api-connection-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.rest-api-connection-form .form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.rest-api-connection-form .form-group input,
+.rest-api-connection-form .form-group textarea,
+.rest-api-connection-form .form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.rest-api-connection-form .form-group input:focus,
+.rest-api-connection-form .form-group textarea:focus,
+.rest-api-connection-form .form-group select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+.rest-api-connection-form .form-group small {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.rest-api-connection-form .header-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.rest-api-connection-form .header-row input {
+  flex: 1;
+}
+
+.rest-api-connection-form .header-row .remove-header {
+  width: 2.5rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--background);
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.rest-api-connection-form .header-row .remove-header:hover:not(:disabled) {
+  background: #ffebee;
+  border-color: #ef5350;
+}
+
+.rest-api-connection-form .add-header {
+  padding: 0.5rem 1rem;
+  border: 1px dashed var(--border-color);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.rest-api-connection-form .add-header:hover:not(:disabled) {
+  background: rgba(25, 118, 210, 0.05);
+  border-color: var(--primary-color);
+}
+
+.rest-api-connection-form .test-result {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.rest-api-connection-form .test-result.success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #4caf50;
+}
+
+.rest-api-connection-form .test-result.error {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef5350;
+}
+
+.rest-api-connection-form .test-result p {
+  margin: 0;
+  font-weight: 500;
+}
+
+.rest-api-connection-form .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.rest-api-connection-form .test-btn,
+.rest-api-connection-form .cancel-btn,
+.rest-api-connection-form .create-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.rest-api-connection-form .test-btn {
+  background: var(--background);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.rest-api-connection-form .test-btn:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+.rest-api-connection-form .cancel-btn {
+  background: var(--background);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.rest-api-connection-form .cancel-btn:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+.rest-api-connection-form .create-btn {
+  background: var(--primary-color);
+  color: white;
+}
+
+.rest-api-connection-form .create-btn:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+
+.rest-api-connection-form .test-btn:disabled,
+.rest-api-connection-form .cancel-btn:disabled,
+.rest-api-connection-form .create-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
