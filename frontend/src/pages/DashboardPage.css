@@ -27,6 +27,34 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.export-pdf-btn {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--text-primary);
+  transition: all 0.2s;
+}
+
+.export-pdf-btn:hover:not(:disabled) {
+  background: #e8f0fe;
+  border-color: var(--primary-color);
+}
+
+.export-pdf-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.dashboard-pdf-capture {
+  background: var(--background, #fff);
+  border-radius: 8px;
 }
 
 .edit-btn,

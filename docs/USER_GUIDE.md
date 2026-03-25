@@ -39,6 +39,12 @@
 - Resize by dragging corners
 - Changes save automatically
 
+### Exporting to PDF
+- Open a dashboard that has at least one widget
+- Click **Export as PDF**
+- Your browser downloads an A4 PDF; tall dashboards span multiple pages
+- The PDF captures the widget layout area (charts and tables as shown on screen)
+
 ### Sharing
 - Open dashboard → **Share**
 - Add users with View or Edit permission
