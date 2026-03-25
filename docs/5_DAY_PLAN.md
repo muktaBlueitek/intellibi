@@ -65,17 +65,17 @@ Based on analysis of the codebase, the following gaps and opportunities were ide
 
 ---
 
-## Day 4: Dashboard Export to PDF
+## Day 4: Dashboard Export to PDF ✅
 
 **Objective:** Export full dashboard as PDF (ProjectScope lists PDF export).
 
 **Tasks:**
-- [ ] Add PDF generation library (e.g., jsPDF + html2canvas, or react-pdf)
-- [ ] Create dashboard-to-PDF export service/utility
-- [ ] Add "Export as PDF" button to dashboard view
-- [ ] Support multi-page layout for large dashboards
+- [x] Add PDF generation library (e.g., jsPDF + html2canvas, or react-pdf)
+- [x] Create dashboard-to-PDF export service/utility
+- [x] Add "Export as PDF" button to dashboard view
+- [x] Support multi-page layout for large dashboards
 
-**Deliverables:** Dashboard PDF export feature, updated USER_GUIDE.
+**Deliverables:** Dashboard PDF export feature (`exportDashboardToPdf.ts`, DashboardPage button), updated USER_GUIDE.
 
 ---
 

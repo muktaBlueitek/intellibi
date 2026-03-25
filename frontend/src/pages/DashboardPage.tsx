@@ -1,14 +1,14 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Layout } from 'react-grid-layout'
 import { useAppDispatch, useAppSelector } from '../hooks/redux'
 import { dashboardService } from '../services/api/dashboardService'
 import { widgetService } from '../services/api/widgetService'
-import { Dashboard } from '../types/dashboard'
 import { Widget } from '../types/widget'
 import { setCurrentDashboard, setLoading, setError } from '../store/slices/dashboardSlice'
 import { useWebSocket } from '../hooks/useWebSocket'
 import DashboardGrid from '../components/Dashboard/DashboardGrid'
+import { exportElementToPdf } from '../utils/exportDashboardToPdf'
 import './DashboardPage.css'
 
 const DashboardPage = () => {
@@ -19,6 +19,8 @@ const DashboardPage = () => {
   const [widgets, setWidgets] = useState<Widget[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const [isExportingPdf, setIsExportingPdf] = useState(false)
+  const pdfExportRef = useRef<HTMLDivElement>(null)
   const { client, subscribe, unsubscribe, isConnected } = useWebSocket()
 
   useEffect(() => {
@@ -142,6 +144,24 @@ const DashboardPage = () => {
     alert('Widget creation will be implemented in Day 14')
   }
 
+  const handleExportPdf = async () => {
+    if (!pdfExportRef.current || !currentDashboard) return
+    if (widgets.length === 0) {
+      alert('Add at least one widget before exporting to PDF.')
+      return
+    }
+    setIsExportingPdf(true)
+    try {
+      const safeName = currentDashboard.name.replace(/[^a-z0-9-_]+/gi, '_').slice(0, 80) || 'dashboard'
+      await exportElementToPdf(pdfExportRef.current, `${safeName}_${new Date().toISOString().slice(0, 10)}.pdf`)
+    } catch (e) {
+      console.error(e)
+      alert('Failed to export PDF. Try again or use a shorter dashboard name.')
+    } finally {
+      setIsExportingPdf(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="dashboard-page">
@@ -169,6 +189,15 @@ const DashboardPage = () => {
         </div>
         <div className="dashboard-actions">
           <button
+            type="button"
+            className="export-pdf-btn"
+            onClick={handleExportPdf}
+            disabled={isExportingPdf || widgets.length === 0}
+            title={widgets.length === 0 ? 'Add widgets to export' : 'Download dashboard as PDF'}
+          >
+            {isExportingPdf ? 'Exporting…' : 'Export as PDF'}
+          </button>
+          <button
             className={`edit-btn ${isEditing ? 'active' : ''}`}
             onClick={() => setIsEditing(!isEditing)}
           >
@@ -193,13 +222,15 @@ const DashboardPage = () => {
           )}
         </div>
       ) : (
-        <DashboardGrid
-          widgets={widgets}
-          onLayoutChange={handleLayoutChange}
-          onWidgetUpdate={handleWidgetUpdate}
-          onWidgetDelete={handleWidgetDelete}
-          isEditable={isEditing}
-        />
+        <div ref={pdfExportRef} className="dashboard-pdf-capture">
+          <DashboardGrid
+            widgets={widgets}
+            onLayoutChange={handleLayoutChange}
+            onWidgetUpdate={handleWidgetUpdate}
+            onWidgetDelete={handleWidgetDelete}
+            isEditable={isEditing}
+          />
+        </div>
       )}
     </div>
   )
