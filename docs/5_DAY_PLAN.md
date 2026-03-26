@@ -9,13 +9,13 @@
 
 Based on analysis of the codebase, the following gaps and opportunities were identified:
 
-| Gap | Description | Priority |
-|-----|-------------|----------|
-| API Rate Limiting | ProjectScope lists it; not implemented | High |
-| Heatmap Chart | Widget type exists; no UI component | Medium |
-| REST API Data Source | Type defined; no connector or UI | Medium |
-| Dashboard PDF Export | ProjectScope mentions; only widget-level export exists | Medium |
-| E2E Test Coverage | Only 3 basic auth tests; no flows for core features | Medium |
+| Gap | Description | Status |
+|-----|-------------|--------|
+| API Rate Limiting | ProjectScope lists it | Done |
+| Heatmap Chart | Widget type exists; UI component | Done |
+| REST API Data Source | Type defined; connector + UI | Done |
+| Dashboard PDF Export | Full dashboard PDF | Done |
+| E2E Test Coverage | Core flows beyond basic auth | Done |
 
 ---
 
@@ -79,19 +79,19 @@ Based on analysis of the codebase, the following gaps and opportunities were ide
 
 ---
 
-## Day 5: E2E Test Expansion & Documentation
+## Day 5: E2E Test Expansion & Documentation ✅
 
 **Objective:** Broaden E2E coverage and keep docs aligned with new features.
 
 **Tasks:**
-- [ ] Add E2E: Login flow → create dashboard → add widget
-- [ ] Add E2E: Data source upload flow (CSV)
-- [ ] Add E2E: Chatbot page load and send message
-- [ ] Update BUGS_FIXED.md summary if applicable
-- [ ] Update docs/5_DAY_PLAN.md with completion status
-- [ ] Update README/ProjectScope with new features
+- [x] Add E2E: Login flow → create dashboard → add widget
+- [x] Add E2E: Data source upload flow (CSV)
+- [x] Add E2E: Chatbot page load and send message
+- [x] Update BUGS_FIXED.md summary if applicable
+- [x] Update docs/5_DAY_PLAN.md with completion status
+- [x] Update README/ProjectScope with new features
 
-**Deliverables:** Expanded E2E tests, updated documentation.
+**Deliverables:** `e2e/core-flows.spec.ts`, `e2e/helpers.ts`, fixture CSV; README testing notes; Vitest/TS cleanup for `tsc` passing.
 
 ---
 

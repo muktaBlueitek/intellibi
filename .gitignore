@@ -133,3 +133,4 @@ data/
 *.xls
 !sample_data/*.csv
 !sample_data/*.xlsx
+!frontend/e2e/fixtures/*.csv

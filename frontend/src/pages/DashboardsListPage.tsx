@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../hooks/redux'
 import { dashboardService } from '../services/api/dashboardService'
-import { Dashboard } from '../types/dashboard'
 import { setDashboards, setLoading, setError } from '../store/slices/dashboardSlice'
 import './DashboardsListPage.css'
 

@@ -50,7 +50,7 @@
 ### 3. Data Integration
 - CSV/Excel file upload
 - Database connectors (PostgreSQL, MySQL, MongoDB)
-- REST API data sources
+- REST API data sources (connector + UI in app)
 - Scheduled data sync
 
 ### 4. User Management
