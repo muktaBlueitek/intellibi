@@ -99,6 +99,16 @@ docker-compose -f docker-compose.prod.yml up -d
 
 See [docs/USER_GUIDE.md](docs/USER_GUIDE.md) and [docs/DEMO.md](docs/DEMO.md) for more.
 
+### End-to-end tests (Playwright)
+
+From `frontend/`, with the API running on `http://localhost:8000` (and seed user `admin` / `admin123` or set `E2E_ADMIN_USER` / `E2E_ADMIN_PASSWORD`):
+
+```bash
+npm run test:e2e
+```
+
+Core flows live in `e2e/core-flows.spec.ts`. Tests call `GET /api/v1/health` first and skip if the backend is unreachable. Override the API base with `PLAYWRIGHT_API_BASE_URL` if needed.
+
 ## Development Status
 
 ✅ **20-day development plan complete.** See [ProjectScope.md](ProjectScope.md).
@@ -109,12 +119,12 @@ See [docs/USER_GUIDE.md](docs/USER_GUIDE.md) and [docs/DEMO.md](docs/DEMO.md) fo
 - ✅ Backend foundation (FastAPI, PostgreSQL, Redis, Docker)
 - ✅ Authentication & User Management (JWT, RBAC)
 - ✅ Dashboards (CRUD, layout, sharing, versioning)
-- ✅ Data Sources (CSV/Excel upload, PostgreSQL, MySQL connectors)
+- ✅ Data Sources (CSV/Excel upload, PostgreSQL, MySQL, REST API connectors)
 - ✅ Analytics Engine (query processing, aggregations)
 - ✅ AI Chatbot (natural language to SQL, insights)
 - ✅ Frontend (React, dashboards, data sources, chatbot)
 - ✅ Real-time (WebSocket, notifications)
-- ✅ Testing (pytest, Vitest, Playwright)
+- ✅ Testing (pytest, Vitest, Playwright — including dashboard/CSV/chatbot flows when API is up)
 - ✅ Documentation & Deployment (Swagger, user guide, docker-compose.prod)
 
 ## Contributing

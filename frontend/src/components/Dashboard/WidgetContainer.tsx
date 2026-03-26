@@ -9,7 +9,6 @@ import {
   LazyHeatmap,
   LazyDataTable,
   LazyChartWrapper,
-  ChartLoadingFallback,
 } from '../Charts/LazyCharts'
 import { exportToCSV, exportChartToPNG } from '../../utils/export'
 import './WidgetContainer.css'

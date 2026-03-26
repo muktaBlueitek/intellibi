@@ -75,3 +75,4 @@ Pass the subquery directly to `in_()` instead of wrapping it with `db.query()`.
 |------------------------------|-----------|----------|------------------------------|
 | FileUpload preview structure | Frontend  | High     | Use `preview.data` and `preview.columns` |
 | Dashboard shared query       | Backend   | Medium   | Pass subquery directly to `in_()` |
+| TS6133 unused symbols (build) | Frontend  | Low      | Remove unused imports / use `_entry` in PieChart `map` |
