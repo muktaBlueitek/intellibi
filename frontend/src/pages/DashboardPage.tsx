@@ -4,7 +4,7 @@ import { Layout } from 'react-grid-layout'
 import { useAppDispatch, useAppSelector } from '../hooks/redux'
 import { dashboardService } from '../services/api/dashboardService'
 import { widgetService } from '../services/api/widgetService'
-import { Widget } from '../types/widget'
+import { Widget, WidgetType } from '../types/widget'
 import { setCurrentDashboard, setLoading, setError } from '../store/slices/dashboardSlice'
 import { useWebSocket } from '../hooks/useWebSocket'
 import DashboardGrid from '../components/Dashboard/DashboardGrid'
@@ -20,6 +20,11 @@ const DashboardPage = () => {
   const [isSaving, setIsSaving] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [isExportingPdf, setIsExportingPdf] = useState(false)
+  const [showAddWidgetModal, setShowAddWidgetModal] = useState(false)
+  const [newWidgetName, setNewWidgetName] = useState('')
+  const [newWidgetDescription, setNewWidgetDescription] = useState('')
+  const [newWidgetType, setNewWidgetType] = useState<WidgetType>('text')
+  const [creatingWidget, setCreatingWidget] = useState(false)
   const pdfExportRef = useRef<HTMLDivElement>(null)
   const { client, subscribe, unsubscribe, isConnected } = useWebSocket()
 
@@ -140,8 +145,40 @@ const DashboardPage = () => {
   )
 
   const handleAddWidget = () => {
-    // Widget creation will be implemented in Day 14
-    alert('Widget creation will be implemented in Day 14')
+    setNewWidgetName('')
+    setNewWidgetDescription('')
+    setNewWidgetType('text')
+    setShowAddWidgetModal(true)
+  }
+
+  const handleCreateWidget = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!currentDashboard || !newWidgetName.trim()) return
+
+    const nextY = widgets.reduce(
+      (max, w) => Math.max(max, w.position_y + w.height),
+      0
+    )
+
+    setCreatingWidget(true)
+    try {
+      const created = await widgetService.createWidget({
+        dashboard_id: currentDashboard.id,
+        name: newWidgetName.trim(),
+        type: newWidgetType,
+        description: newWidgetDescription.trim() || undefined,
+        position_x: 0,
+        position_y: nextY,
+        width: 4,
+        height: newWidgetType === 'text' ? 2 : 3,
+      })
+      setWidgets((prev) => [...prev, created])
+      setShowAddWidgetModal(false)
+    } catch (err: any) {
+      alert(err.response?.data?.detail || 'Failed to create widget')
+    } finally {
+      setCreatingWidget(false)
+    }
   }
 
   const handleExportPdf = async () => {
@@ -216,7 +253,7 @@ const DashboardPage = () => {
         <div className="empty-dashboard">
           <p>This dashboard is empty.</p>
           {isEditing && (
-            <button className="add-widget-btn" onClick={handleAddWidget}>
+            <button type="button" className="add-widget-btn" onClick={handleAddWidget}>
               + Add Your First Widget
             </button>
           )}
@@ -230,6 +267,74 @@ const DashboardPage = () => {
             onWidgetDelete={handleWidgetDelete}
             isEditable={isEditing}
           />
+        </div>
+      )}
+
+      {showAddWidgetModal && (
+        <div
+          className="dashboard-modal-overlay"
+          role="presentation"
+          onClick={() => !creatingWidget && setShowAddWidgetModal(false)}
+        >
+          <div
+            className="dashboard-modal-content"
+            role="dialog"
+            aria-labelledby="add-widget-title"
+            onClick={(ev) => ev.stopPropagation()}
+          >
+            <h2 id="add-widget-title">Add Widget</h2>
+            <form onSubmit={handleCreateWidget}>
+              <div className="form-group">
+                <label htmlFor="new-widget-name">Name</label>
+                <input
+                  id="new-widget-name"
+                  type="text"
+                  value={newWidgetName}
+                  onChange={(e) => setNewWidgetName(e.target.value)}
+                  placeholder="Widget title"
+                  required
+                  autoFocus
+                  disabled={creatingWidget}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="new-widget-type">Type</label>
+                <select
+                  id="new-widget-type"
+                  value={newWidgetType}
+                  onChange={(e) => setNewWidgetType(e.target.value as WidgetType)}
+                  disabled={creatingWidget}
+                >
+                  <option value="text">Text</option>
+                  <option value="metric">Metric</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="new-widget-desc">Description (optional)</label>
+                <textarea
+                  id="new-widget-desc"
+                  value={newWidgetDescription}
+                  onChange={(e) => setNewWidgetDescription(e.target.value)}
+                  placeholder="Shown on text widgets"
+                  rows={3}
+                  disabled={creatingWidget}
+                />
+              </div>
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="cancel-btn"
+                  disabled={creatingWidget}
+                  onClick={() => setShowAddWidgetModal(false)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="create-btn" disabled={creatingWidget}>
+                  {creatingWidget ? 'Adding…' : 'Add Widget'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

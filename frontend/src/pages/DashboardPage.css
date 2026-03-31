@@ -127,3 +127,92 @@
 .error {
   color: var(--error);
 }
+
+.dashboard-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dashboard-modal-content {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 480px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+.dashboard-modal-content .form-group {
+  margin-bottom: 1.25rem;
+}
+
+.dashboard-modal-content label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.dashboard-modal-content input,
+.dashboard-modal-content textarea,
+.dashboard-modal-content select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.dashboard-modal-content input:focus,
+.dashboard-modal-content textarea:focus,
+.dashboard-modal-content select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+.dashboard-modal-content .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.dashboard-modal-content .cancel-btn,
+.dashboard-modal-content .create-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.dashboard-modal-content .cancel-btn {
+  background: var(--background);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.dashboard-modal-content .create-btn {
+  background: var(--primary-color);
+  color: white;
+}
+
+.dashboard-modal-content .create-btn:disabled,
+.dashboard-modal-content .cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

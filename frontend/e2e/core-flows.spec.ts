@@ -1,12 +1,6 @@
 import { test, expect } from '@playwright/test'
 import path from 'path'
-import {
-  apiBaseUrl,
-  E2E_ADMIN_PASSWORD,
-  E2E_ADMIN_USER,
-  isBackendReachable,
-  loginForToken,
-} from './helpers'
+import { apiBaseUrl, E2E_ADMIN_PASSWORD, E2E_ADMIN_USER, isBackendReachable } from './helpers'
 
 test.describe('Core product flows', () => {
   test.beforeEach(async ({ request }) => {
@@ -14,10 +8,7 @@ test.describe('Core product flows', () => {
     test.skip(!up, `Backend not reachable at ${apiBaseUrl()} (start API and ensure admin user exists)`)
   })
 
-  test('login, create dashboard, add widget via API, see widget on dashboard', async ({
-    page,
-    request,
-  }) => {
+  test('login, create dashboard, add widget from UI', async ({ page }) => {
     await page.goto('/login')
     await page.getByLabel('Username').fill(E2E_ADMIN_USER)
     await page.getByLabel('Password').fill(E2E_ADMIN_PASSWORD)
@@ -34,30 +25,17 @@ test.describe('Core product flows', () => {
     await page.getByPlaceholder('Enter dashboard name').fill(dashName)
     await page.getByRole('button', { name: 'Create' }).click()
 
-    await expect(page).toHaveURL(/\/dashboards\/\d+/$/, { timeout: 15000 })
+    await expect(page).toHaveURL(/\/dashboards\/\d+$/, { timeout: 15000 })
     await expect(page.getByRole('heading', { level: 1, name: dashName })).toBeVisible()
 
-    const match = page.url().match(/\/dashboards\/(\d+)/)
-    const dashboardId = match ? Number(match[1]) : NaN
-    expect(dashboardId).toBeGreaterThan(0)
+    await page.getByRole('button', { name: /edit layout/i }).click()
+    await page.getByRole('button', { name: '+ Add Widget' }).click()
+    await expect(page.getByRole('heading', { name: 'Add Widget' })).toBeVisible()
 
-    const token = await loginForToken(request, E2E_ADMIN_USER, E2E_ADMIN_PASSWORD)
-    const widgetRes = await request.post(`${apiBaseUrl().replace(/\/$/, '')}/widgets/`, {
-      headers: { Authorization: `Bearer ${token}` },
-      data: {
-        dashboard_id: dashboardId,
-        name: 'E2E text widget',
-        type: 'text',
-        description: 'Smoke test widget',
-        position_x: 0,
-        position_y: 0,
-        width: 4,
-        height: 3,
-      },
-    })
-    expect(widgetRes.ok()).toBeTruthy()
+    await page.getByLabel('Name').fill('E2E text widget')
+    await page.getByLabel('Description (optional)').fill('Smoke test widget')
+    await page.getByRole('button', { name: 'Add Widget' }).click()
 
-    await page.reload()
     await expect(page.getByText('E2E text widget')).toBeVisible({ timeout: 15000 })
   })
 

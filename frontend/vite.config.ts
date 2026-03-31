@@ -4,8 +4,11 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
+  esbuild: {
+    drop: mode === 'production' ? ['console', 'debugger'] : [],
+  },
   test: {
     globals: true,
     environment: 'jsdom',
@@ -43,14 +46,8 @@ export default defineConfig({
         },
       },
     },
-    // Enable minification
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove console.log in production
-      },
-    },
+    minify: 'esbuild',
     // Chunk size warnings
     chunkSizeWarningLimit: 1000,
   },
-})
+}))
