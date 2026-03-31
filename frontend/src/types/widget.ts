@@ -26,6 +26,7 @@ export interface Widget {
 }
 
 export interface WidgetCreate {
+  dashboard_id: number
   name: string
   type: WidgetType
   description?: string
