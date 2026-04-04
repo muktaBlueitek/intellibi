@@ -99,7 +99,7 @@ const WidgetContainer: React.FC<WidgetContainerProps> = ({
             config={{ title: widget.name, ...widget.config }}
           />
         )
-      case 'metric':
+      case 'metric': {
         // Calculate metric value from first row, first numeric column
         const rawMetric = data.length > 0 && columns.length > 0
           ? data[0][columns.find(col => {
@@ -114,6 +114,7 @@ const WidgetContainer: React.FC<WidgetContainerProps> = ({
             <p className="metric-label">{widget.name}</p>
           </div>
         )
+      }
       case 'text':
         return (
           <div className="widget-text">
